@@ -48,6 +48,87 @@
         }
       ],
       "verdict": "Well-sourced and clearly argued; its originality now depends on the writer's slot answers, so prioritise a vivid opening moment and an honest account of which habits worked."
+    },
+    {
+      "attempt": 1,
+      "avg": 3.71,
+      "lint_errors": 0,
+      "passed": false,
+      "revised": false,
+      "scores": {
+        "voice": 4,
+        "specificity": 4,
+        "argument": 4,
+        "structure": 4,
+        "clarity": 4,
+        "human_room": 3,
+        "boost_readiness": 3
+      },
+      "fixes": [
+        {
+          "where": "[[HUMAN: One moment from your own coursework when you had to debug code an assistant wrote.",
+          "problem": "Five [[HUMAN]] slots against a target of 2-4, and this one is not in the brief's outline. It also overlaps with the opening slot, which already asks for the moment the gap showed up.",
+          "fix": "Delete the debugging slot and let the section rest on the explanation and the ICCE study, or fold its prompt into the opening slot as an optional detail (\"if it involved debugging code the assistant wrote, say so\")."
+        },
+        {
+          "where": "**The difference between performance and learning is the whole story.**",
+          "problem": "House style allows bold on a phrase, never a full sentence.",
+          "fix": "Bold only the phrase \"performance and learning\", or bold nothing and let the next two sentences carry the definition."
+        },
+        {
+          "where": "[\"Generative AI without guardrails can harm learning\"](https://ideas.repec.org/a/nas/journl/v122y2025pe2422633122.html)",
+          "problem": "Links to RePEc, an index, rather than the primary source, and the title is shortened without saying so.",
+          "fix": "Link to the PNAS article via its DOI (10.1073/pnas.2422633122) and use the full title \"Generative AI without guardrails can harm learning: Evidence from high school mathematics\", or drop the quotation marks if keeping a short form."
+        },
+        {
+          "where": "[colleges turning to oral exams](https://wtop.com/education/2026/04/perfect-homework-blank-stares-why-colleges-are-turning-to-oral-exams-to-combat-ai/)",
+          "problem": "The story says the Associated Press reported this but links to a WTOP syndication page, and names no reporter, which the brief asked for.",
+          "fix": "Link to the original AP article on apnews.com and name the reporter in the sentence, or keep the WTOP link and say \"as carried by WTOP\"."
+        },
+        {
+          "where": "In [one study presented at ICCE 2025]",
+          "problem": "The study is anonymous: no authors, institution or sample size, so the reader cannot judge how much weight it bears.",
+          "fix": "Name the lead author and institution and state the number of participants and the setting (course, level) from the paper; if the sample is small, say so in the same sentence."
+        },
+        {
+          "where": "Under exam conditions the gap widens.",
+          "problem": "Stated as fact with no source; neither cited study measured debugging under exam conditions.",
+          "fix": "Rephrase as reasoning rather than finding, e.g. \"Exam conditions make this worse, not better:\" followed by the existing reasons about no assistant and a running clock."
+        },
+        {
+          "where": "Claims to verify: the Springer article in the idea's evidence (International Journal of Artificial Intelligence in Education, DOI 10.1007/s40593-025-00496-4)",
+          "problem": "The brief asked for this paper to be read and reported, but the draft never mentions it, so the research section rests on a single high-school maths study.",
+          "fix": "Add one or two sentences on the IJAIED paper's actual sample, setting and finding, placed after the Bastani limits paragraph as a programming-specific data point; if its findings do not support the claim, say that instead."
+        },
+        {
+          "where": "This piece is about what that means for a study system, written from the middle of a semester rather than the end of a degree.",
+          "problem": "Meta sentence that describes the piece instead of advancing it; the opening has already stated the point.",
+          "fix": "Delete it, or replace it with one concrete sentence on what the reader will be able to do by the end (sort tasks into shortcut and unassisted)."
+        },
+        {
+          "where": "An assignment finished with an AI assistant and an exam sat without one can feel like two different courses.",
+          "problem": "The first line is a general observation rather than the writer's own moment, so the opening leans entirely on the slot to become concrete.",
+          "fix": "Move the [[HUMAN]] opening slot above this line so the story starts from the writer's moment, and keep this sentence as the generalisation that follows it."
+        },
+        {
+          "where": "## What a study system should change",
+          "problem": "The brief's heading is \"What I changed in my study system\"; the draft's version is impersonal and loses the first-person angle that makes the advice credible.",
+          "fix": "Rename to \"What I changed in my study system\" and switch the section's framing sentences to first person where they describe the rule, leaving the slot to supply the evidence."
+        },
+        {
+          "where": "students who had used a standard ChatGPT-style interface scored about 17% lower than students who never had it",
+          "problem": "Accurate to the paper's headline, but the reader may not know whether 17% is relative or percentage points, and the practice-score gain is described only as \"much better\".",
+          "fix": "Check the paper and state whether the 17% is a relative reduction, and give the reported practice-problem improvement figures for both GPT-4 arms in the previous paragraph."
+        },
+        {
+          "where": "If you can explain why your solution works, why you chose this data structure, and what would break with a different input, you learnt it.",
+          "problem": "Triplet list in a sentence that already reads as a slogan; slightly overstates the case, since explaining is evidence of learning, not proof.",
+          "fix": "Cut to two items and soften the claim, e.g. \"If you can explain why your solution works and what would break with a different input, you probably learnt it.\""
+        }
+      ],
+      "verdict": "A well-sourced, readable scaffold with a clear argument, held back by one slot too many, a bold sentence, secondary links where primary sources were asked for, and the unused IJAIED paper."
     }
-  ]
+  ],
+  "passed": false,
+  "final_avg": 3.71
 }

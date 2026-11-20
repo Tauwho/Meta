@@ -1,0 +1,22 @@
+{
+  "title": "AI makes my coding homework faster and my exams harder",
+  "subtitle": "Research suggests AI help raises task scores more than learning. Here is what that means for studying for an exam with no assistant.",
+  "tags": [
+    "Programming",
+    "Artificial Intelligence",
+    "Education",
+    "Computer Science",
+    "Productivity"
+  ],
+  "publication": {
+    "name": "Level Up Coding",
+    "url": "https://levelup.gitconnected.com",
+    "pitch": "A computer science student's account of why AI-assisted coursework can leave you underprepared for proctored exams and oral defences, grounded in the Bastani et al. PNAS field experiment and the ACM task force survey of CS educators. It ends with a practical rule for splitting study time into work the assistant can speed up and practice that has to stay unassisted."
+  },
+  "cover_image": {
+    "unsplash_query": "student writing code notebook exam desk",
+    "alt": "A student working through code by hand in a notebook beside a closed laptop"
+  },
+  "seo_description": "AI assistants speed up coding homework but not what you can do alone. How to study when exams move back to proctored tests and oral defences.",
+  "reading_minutes": 5
+}
