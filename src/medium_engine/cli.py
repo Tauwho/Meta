@@ -11,10 +11,17 @@ from dotenv import load_dotenv
 from . import config, gate, lint, stages, store, track, visuals
 
 
+def _api_only():
+    if config.settings()["llm"].get("backend", "agent") != "api":
+        sys.exit("llm.backend is 'agent': AI work runs through `medium agent next/submit` "
+                 "(scheduled Claude Code task). Set llm.backend: api to use an API key instead.")
+
+
 def cmd_scout(a):
-    new = stages.scout()
-    print(f"{len(new)} new ideas; top of queue:")
-    for i, idea in enumerate([x for x in stages.load_ideas() if x.get("status") == "new"][:10]):
+    _api_only()
+    stages.execute(stages.scout_job())
+    print("top of queue:")
+    for i, idea in enumerate(stages.fresh_ideas()[:10]):
         print(f"  [{i}] {idea.get('score', 0):.2f}  {idea['title']}")
 
 
@@ -24,13 +31,27 @@ def cmd_new(a):
 
 
 def cmd_run(a):
+    _api_only()
     if a.all:
-        stages.run_all()
+        print(f"{stages.run_all()} job(s) run")
         return
     if not a.id:
         sys.exit("give a story id or --all")
     s = stages.run_to_gate(store.load(a.id))
     print(f"{s.id}: {s.state}" + ("  -> open GATE.md" if s.state == "awaiting_human" else ""))
+
+
+def cmd_agent(a):
+    from . import agent
+    if a.action == "next":
+        print(json.dumps(agent.next_ticket(), indent=2))
+    elif a.action == "submit":
+        if not a.job_id:
+            sys.exit("job id required")
+        print(agent.submit(a.job_id))
+    elif a.action == "abandon":
+        agent.abandon(a.job_id)
+        print("abandoned")
 
 
 def cmd_status(a):
@@ -120,6 +141,10 @@ def main(argv=None):
     co = sub.add_parser("cover", help="regenerate the house-style cover image")
     co.add_argument("id")
     co.set_defaults(fn=cmd_cover)
+    ag = sub.add_parser("agent", help="job protocol for a Claude Code session acting as the model")
+    ag.add_argument("action", choices=["next", "submit", "abandon"])
+    ag.add_argument("job_id", nargs="?")
+    ag.set_defaults(fn=cmd_agent)
     sub.add_parser("learn", help="update config/style-learned.md from your published rewrites").set_defaults(fn=cmd_learn)
     a = p.parse_args(argv)
     a.fn(a)

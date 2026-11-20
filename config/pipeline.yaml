@@ -13,6 +13,7 @@ niches:                      # topics you have real experience in; scout only pr
     tags: [fintech, payments, software-architecture]
 
 llm:
+  backend: agent             # agent = a Claude Code session (subscription) does the AI work via `medium agent next/submit`; api = Anthropic API key
   model: claude-opus-5-5     # claude-sonnet-5-5 is ~half the cost
   effort:
     scout: medium

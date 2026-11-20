@@ -33,8 +33,8 @@ Helpers: `medium lint <id>|--file F`, `medium export <id>` (paste-ready HTML), `
 
 ## Automation
 
-- `.github/workflows/pipeline.yml` runs `scout` weekly and `run --all` + `track` daily on GitHub Actions, then commits results. Needs the `ANTHROPIC_API_KEY` repository secret.
-- Locally the same commands work from a shell or a scheduled task.
+- **Default (`llm.backend: agent`)**: a scheduled Claude Code task on the Claude subscription runs daily and follows `docs/AGENT_RUN.md`: `medium agent next` hands out one job (prompt file + system file), the session writes the output, `medium agent submit` validates and advances. Scout, review/revise loops and learn are all jobs in the same queue.
+- **Optional (`llm.backend: api`)**: `medium scout`, `medium run --all`, `medium learn` call the Claude API directly; `.github/workflows/pipeline.yml` (manual trigger) does the same with the `ANTHROPIC_API_KEY` secret.
 - Nothing in the pipeline touches Medium except public RSS reads.
 
 ## Cadence and queue

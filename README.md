@@ -14,12 +14,11 @@ Consistency comes from four layers: your voice (`config/voice.md`), the house st
 
 ```bash
 pip install -e .[dev]
-cp .env.example .env          # add ANTHROPIC_API_KEY (or use `ant auth login`)
 # fill config/voice.md and config/pipeline.yaml (niches, medium_handle)
 pytest
-medium scout                  # research + rank ideas  -> data/ideas.jsonl
-medium new                    # make a story from the best idea
-medium run <id>               # AI stages up to the gate -> stories/<id>/GATE.md
+# AI work runs on your Claude subscription: a scheduled Claude Code task follows
+# docs/AGENT_RUN.md, looping `medium agent next` -> write output -> `medium agent submit`.
+# Stories land at the gate: stories/<id>/GATE.md
 # ... do the gate (see GATE.md), publish on Medium ...
 medium gate done <id> --url https://medium.com/@you/...
 medium track                  # confirm via RSS, ingest data/earnings/*.csv
@@ -28,7 +27,7 @@ medium lint <id>              # style check; export <id> -> paste-ready HTML; co
 medium status
 ```
 
-`medium run --all` keeps up to `cadence.max_waiting_at_gate` stories ready for you. The GitHub Actions workflow runs scout weekly and run/track daily (needs the `ANTHROPIC_API_KEY` secret).
+The scheduled task (Claude desktop app, daily) keeps up to `cadence.max_waiting_at_gate` stories ready for you; it runs while the app is open, or on next launch. Optional: `llm.backend: api` + an API key enables `medium scout/run/learn` and the manual GitHub Actions workflow.
 
 ## Layout
 

@@ -9,3 +9,4 @@ dist/
 # raw earnings exports may contain account details
 data/earnings/*.csv
 !data/earnings/example.csv
+jobs/

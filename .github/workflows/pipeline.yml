@@ -1,9 +1,9 @@
 name: pipeline
 
+# Optional API-key backend (llm.backend: api). The default backend is a scheduled
+# Claude Code task on the Claude subscription (docs/AGENT_RUN.md), so this only
+# runs when triggered by hand.
 on:
-  schedule:
-    - cron: "0 22 * * 0"   # scout: Mondays 06:00 SGT
-    - cron: "0 23 * * *"   # prepare stories + track: daily 07:00 SGT
   workflow_dispatch:
     inputs:
       task:
@@ -25,13 +25,13 @@ jobs:
           python-version: "3.12"
       - run: pip install -e .
       - name: scout
-        if: github.event.schedule == '0 22 * * 0' || inputs.task == 'scout'
+        if: inputs.task == 'scout'
         run: medium scout
       - name: prepare stories up to the human gate
-        if: github.event.schedule == '0 23 * * *' || inputs.task == 'run'
+        if: inputs.task == 'run'
         run: medium run --all
       - name: track + learn from your rewrites
-        if: github.event.schedule == '0 23 * * *' || inputs.task == 'track'
+        if: inputs.task == 'track'
         run: |
           medium track
           medium learn

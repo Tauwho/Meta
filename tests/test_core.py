@@ -129,3 +129,51 @@ def test_gate_done_saves_exemplar(repo):
                                              "In March I dropped two clubs and a side project."))
     gate.done(s, "https://medium.com/@me/x")
     assert (repo / "config" / "exemplars" / f"{s.id}.md").exists()
+
+
+def test_agent_protocol_walks_story_to_gate(repo, monkeypatch):
+    import json as _json
+    from medium_engine import agent
+    monkeypatch.setattr(stages.rss, "fetch", lambda url: [])
+    (repo / "config" / "pipeline.yaml").write_text(
+        (repo / "config" / "pipeline.yaml").read_text(encoding="utf-8").replace("max_revisions: 2", "max_revisions: 1"),
+        encoding="utf-8")
+    config.settings.cache_clear()
+    outputs = {
+        "scout": _json.dumps({"ideas": [{"title": "Saying no is the productivity system nobody sells you",
+                                          "niche": "CS student life and study systems",
+                                          "fit": 0.9, "demand": 0.7, "gap": 0.6}]}),
+        "brief": "## Reader\nStudents.", "draft": GOOD, "factcheck": "| # |\n## Must fix\nNone",
+        "edit": GOOD, "revise": GOOD,
+        "review": _json.dumps({"scores": {k: 3 for k in stages.CRITERIA}, "fixes": [], "verdict": "ok"}),
+        "package": _json.dumps({"title": "Saying no is the productivity system nobody sells you",
+                                "subtitle": "s", "tags": ["a"], "publication": {"name": "P"},
+                                "cover_image": {"unsplash_query": "q"}}),
+    }
+    seen = []
+    for _ in range(20):
+        t = agent.next_ticket()
+        if t["done"]:
+            break
+        seen.append(t["stage"])
+        assert "house_style" in open(t["system_file"], encoding="utf-8").read()
+        open(t["output_file"], "w", encoding="utf-8").write(outputs[t["stage"]])
+        agent.submit(t["job_id"])
+        if len(store.all_stories()) and all(s.state == "awaiting_human" for s in store.all_stories()):
+            break
+    assert seen == ["scout", "brief", "draft", "factcheck", "edit", "review", "revise", "review", "package"]
+    [s] = store.all_stories()
+    assert s.state == "awaiting_human"
+    assert s.path("GATE.md").exists() and s.path("package/cover.png").exists()
+    assert _json.loads(s.read("review.json"))["passed"] is False
+
+
+def test_submit_rejects_bad_json_and_keeps_job_open(repo, monkeypatch):
+    from medium_engine import agent
+    monkeypatch.setattr(stages.rss, "fetch", lambda url: [])
+    t = agent.next_ticket()
+    assert t["stage"] == "scout"
+    open(t["output_file"], "w", encoding="utf-8").write("not json")
+    with pytest.raises(Exception):
+        agent.submit(t["job_id"])
+    assert agent.next_ticket()["job_id"] == t["job_id"]
