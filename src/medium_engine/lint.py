@@ -229,6 +229,10 @@ def lint(md: str, ai: bool = False) -> Report:
         bolds = sum(len(re.findall(r"\*\*[^*]+\*\*", para)) for para in sec)
         if bolds > cfg["bold_per_section_max"]:
             add("warn", "bold", f"section {i}: {bolds} bold phrases")
+    for para in p["paragraphs"]:
+        for span in re.findall(r"\*\*([^*]+)\*\*", para):
+            if len(span.split()) > 8 or span.rstrip().endswith((".", "!", "?")):
+                add("warn", "bold-sentence", f"bold a key phrase, not a sentence: '{span[:50]}'")
     for n in p["list_runs"]:
         if n > cfg["list_items_max"]:
             add("warn", "list-length", f"list of {n} items (max {cfg['list_items_max']})")

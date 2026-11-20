@@ -213,3 +213,28 @@ def test_ai_lint_blocks_invented_experience(repo):
     assert not any(i.rule == "ai-first-person" for i in lint.lint(neutral, ai=True).issues)
     slotted = neutral.replace("[[HUMAN: the week", "[[HUMAN: In my experience the week")
     assert not any(i.rule == "ai-first-person" for i in lint.lint(slotted, ai=True).issues)
+
+
+def test_review_keeps_best_version_when_revision_regresses(repo):
+    import json as _json
+    s = store.create({"title": "x"})
+    for st, f in (("brief", "brief.md"), ("draft", "draft.md"), ("factcheck", "factcheck.md"), ("edit", "edited.md")):
+        s.write(f, GOOD)
+        s.advance(st)
+    better = _json.dumps({"scores": {k: 3.8 for k in stages.CRITERIA}})
+    worse = _json.dumps({"scores": {k: 3.5 for k in stages.CRITERIA}})
+    revised = GOOD.replace("The real problem", "A worse heading")
+    for stage, out in (("review", better), ("revise", revised), ("review", worse)):
+        job = stages.story_job(store.load(s.id))
+        assert job.stage == stage
+        stages.apply(job, out)
+    assert stages.story_job(store.load(s.id)).stage == "package"
+    s = store.load(s.id)
+    assert s.read("edited.md") == GOOD
+    assert _json.loads(s.read("review.json"))["rounds"][-1]["restored_from"] == 0
+
+
+def test_lint_flags_bold_sentence(repo):
+    from medium_engine import lint
+    text = GOOD.replace("those are different problems.", "**those are different problems.**")
+    assert "bold-sentence" in {i.rule for i in lint.lint(text).issues}

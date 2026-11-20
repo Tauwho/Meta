@@ -163,6 +163,25 @@ def _fixes_text(review: dict) -> str:
                      for f in review.get("fixes", [])) or "(none)"
 
 
+def _keep_best(story: store.Story, rounds: list[dict]) -> None:
+    """If a revision scored worse than an earlier version, ship the earlier one.
+
+    Round k reviewed revisions/edited.v{k}.md (saved just before revise k overwrote it);
+    the last round reviewed the current edited.md.
+    """
+    best = max(rounds, key=lambda r: (r["lint_errors"] == 0, r["avg"]))
+    if best is rounds[-1]:
+        return
+    src = f"revisions/edited.v{best['attempt']}.md"
+    if not story.path(src).exists():
+        return
+    story.write(f"revisions/edited.v{len(rounds) - 1}.md", story.read("edited.md"))
+    story.write("edited.md", story.read(src))
+    rounds.append({**best, "attempt": len(rounds), "revised": False,
+                   "restored_from": best["attempt"], "verdict": f"restored round {best['attempt']} "
+                   f"(avg {best['avg']}) over later round(s) that scored lower"})
+
+
 def story_job(story: store.Story) -> Job | None:
     """Next AI job for this story, or None once it is at/after the gate."""
     c = _story_cfg()
@@ -187,6 +206,7 @@ def story_job(story: store.Story) -> Job | None:
         last = rounds[-1]
         plateau = len(rounds) >= 2 and last["avg"] <= rounds[-2]["avg"] + q.get("min_gain", 0.1)
         if last["passed"] or last["attempt"] >= q["max_revisions"] or plateau:
+            _keep_best(story, rounds)
             _save_rounds(story, rounds, final=True)
             story.advance("review", f"avg={last['avg']} passed={last['passed']}")
             return story_job(story)
