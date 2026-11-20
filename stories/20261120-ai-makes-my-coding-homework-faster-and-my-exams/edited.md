@@ -24,9 +24,7 @@ The study has limits: one school, one subject, and a time when chatbots were sti
 
 Writing code builds a picture in your head of what each part is for. When something breaks, you debug against that picture. You know which loop was meant to stop early and which variable you were unsure about.
 
-Code from an assistant arrives without that picture. It often looks finished and reads well. When it fails, you may have to reconstruct the intent from scratch, discovering the design at the same time as the bug.
-
-[[HUMAN: One moment from your own coursework when you had to debug code an assistant wrote. What broke, how long it took, and whether it felt different from fixing your own code. Skip if you have no such moment.]]
+Code from an assistant arrives without that picture. It often looks finished and reads well. When it fails, you have to reconstruct the intent from scratch, discovering the design at the same time as the bug.
 
 Early research points the same way, though it does not yet settle the question. In [one study presented at ICCE 2025](https://library.apsce.net/index.php/ICCE/article/download/5679/5611/6851), students working with AI produced more advanced code but often relied on repeated prompting, while the group without AI did more of its own problem decomposition and debugging.
 
@@ -48,7 +46,7 @@ None of this makes AI tools bad for students. It makes the split between coursew
 
 The useful question is not whether to use AI. It is which parts of studying are for producing work and which are for building the skill the exam will test.
 
-Some work is a reasonable shortcut. Boilerplate is one. Looking up the arguments of a C library call for an operating systems lab is another, and so is asking for an explanation of a compiler error after you have already tried to read it yourself. Using the assistant here saves time without taking the learning away.
+Some work is a reasonable shortcut: boilerplate, syntax you have forgotten, or an explanation of a compiler error after you have already tried to read it yourself. Using the assistant here saves time without taking the learning away.
 
 Other work has to stay unassisted:
 
@@ -59,7 +57,7 @@ Other work has to stay unassisted:
 
 A simple rule covers most of it: attempt first, then ask, then redo without help. The first attempt shows you where you are stuck. The assistant gets you unstuck. The redo is where the learning happens, because you rebuild the reasoning without the tool's version in front of you.
 
-This mirrors the hint-only tutor in the Bastani study. The students and subject were different, but the principle carries: the version that held back answers protected learning. You can impose the same limit on yourself by deciding in advance what you will and will not ask for.
+This mirrors the hint-only tutor in the Bastani study. The version that held back answers protected learning. You can impose the same limit on yourself by deciding in advance what you will and will not ask for.
 
 [[HUMAN: The specific habits you changed this semester and whether they helped. For example: a rule about when you open the assistant, practising tracing by hand, timed unassisted attempts. Be honest about what did not work.]]
 
@@ -67,8 +65,8 @@ This mirrors the hint-only tutor in the Bastani study. The students and subject 
 
 The assistant is good at making work look done. That is useful when the goal is the output. It is a trap when the goal is the ability to produce the output alone, under time pressure, in a room where the tool is not allowed.
 
-[[HUMAN: Optional: one sentence on what you will do differently for your final exams this term.]]
-
 So decide in advance which parts of your week are for learning, and keep the assistant out of those. Use it freely everywhere else.
+
+[[HUMAN: Optional: one sentence on what you will do differently for your final exams this term.]]
 
 If the assistant vanished tomorrow, which part of this week's work could you still do?
