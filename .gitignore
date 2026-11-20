@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+build/
+dist/
+# raw earnings exports may contain account details
+data/earnings/*.csv
+!data/earnings/example.csv
