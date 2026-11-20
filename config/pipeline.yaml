@@ -38,7 +38,9 @@ quality:
   review:
     min_score: 4.0           # rubric average (1-5) the edited story must reach before packaging
     max_revisions: 2         # auto-revise loops before handing over anyway (flagged in GATE.md)
+    min_gain: 0.1            # stop revising early when a round improves the average by less than this
   lint:
+    slot_words: 150            # words assumed per unfilled [[HUMAN]] slot when checking length
     title_chars: [40, 70]
     subtitle_chars: [80, 140]
     paragraph_max_words: 80

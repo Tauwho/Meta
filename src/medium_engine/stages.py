@@ -185,7 +185,8 @@ def story_job(story: store.Story) -> Job | None:
             return Job("story", "review", sid, config.prompt(
                 "review", brief=story.read("brief.md"), story=text, lint=lint.lint(text).markdown()), fmt="json")
         last = rounds[-1]
-        if last["passed"] or last["attempt"] >= q["max_revisions"]:
+        plateau = len(rounds) >= 2 and last["avg"] <= rounds[-2]["avg"] + q.get("min_gain", 0.1)
+        if last["passed"] or last["attempt"] >= q["max_revisions"] or plateau:
             _save_rounds(story, rounds, final=True)
             story.advance("review", f"avg={last['avg']} passed={last['passed']}")
             return story_job(story)

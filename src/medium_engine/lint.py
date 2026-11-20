@@ -147,6 +147,15 @@ def lint(md: str) -> Report:
         "placeholders": len(PLACEHOLDER.findall(md)),
     }
 
+    # length vs target; each unfilled [[HUMAN]] slot is budgeted at slot_words
+    lo_w, hi_w = config.settings()["story"]["target_words"]
+    slot_words = cfg.get("slot_words", 150)
+    projected = words + rep.stats["placeholders"] * slot_words
+    if words > 200 and not lo_w <= projected <= hi_w:
+        how = (f"{words} words + {rep.stats['placeholders']} slot(s) x ~{slot_words} = ~{projected}"
+               if rep.stats["placeholders"] else f"{words} words")
+        add("warn", "length", f"{how} (target {lo_w}-{hi_w})")
+
     # banned phrases (errors); normalise curly apostrophes so ’ and ' match
     low = md.lower().replace("’", "'")
     for phrase in sorted(set(cfg["banned_phrases"]) | set(voice_banned())):
@@ -173,6 +182,8 @@ def lint(md: str) -> Report:
             add("error", "heading-level", f"h{level} '{text[:40]}' (Medium supports ## and ### only)")
 
     # paragraphs and sentences
+    if p["paragraphs"] and re.match(r"(picture|imagine)\b", p["paragraphs"][0], re.I):
+        add("warn", "opening", "opens with an invented scene; use a real observation or your own moment")
     for para in p["paragraphs"]:
         n = len(PLACEHOLDER.sub("", para).split())
         if n > cfg["paragraph_max_words"]:

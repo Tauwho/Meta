@@ -6,7 +6,7 @@
 
 1. **Title** — sentence case, 40–70 characters, a specific claim or question. No colons-plus-listicle ("7 Ways…: The Ultimate Guide").
 2. **Subtitle** — one sentence, 80–140 characters, says what the reader gets.
-3. **Opening (first 2–4 short paragraphs)** — start from a concrete observation, scene or problem, never a definition or a statistic dump. State the point of the piece by the end of the opening.
+3. **Opening (first 2–4 short paragraphs)** — start from a concrete, real observation or problem (or the writer's own moment), never a definition, a statistic dump, or an invented "Picture a…/Imagine…" scene. State the point of the piece by the end of the opening.
 4. **Body** — 3–6 sections with `##` headings (Medium "big T"). Use `###` (Medium "small T") sparingly. Nothing deeper; Medium has no H4.
 5. **Ending** — one short section that lands the point: a decision, a question worth keeping, or what to do next. No "In conclusion", no recap of every section.
 

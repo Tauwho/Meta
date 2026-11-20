@@ -177,3 +177,28 @@ def test_submit_rejects_bad_json_and_keeps_job_open(repo, monkeypatch):
     with pytest.raises(Exception):
         agent.submit(t["job_id"])
     assert agent.next_ticket()["job_id"] == t["job_id"]
+
+
+def test_lint_length_counts_slots_and_flags_invented_opening(repo):
+    from medium_engine import lint
+    body = "# A title that is long enough to pass the check\n\n*sub*\n\nPicture a student at a desk.\n\n" \
+        + "## Section\n\n" + ("This is a plain sentence with exactly ten words in it. " * 10 + "\n\n") * 5
+    rules = {i.rule for i in lint.lint(body).issues}
+    assert "length" in rules and "opening" in rules
+    with_slots = body + "\n\n" + "\n\n".join("[[HUMAN: x]]" for _ in range(5))
+    assert "length" not in {i.rule for i in lint.lint(with_slots).issues}
+
+
+def test_review_stops_on_plateau(repo):
+    import json as _json
+    s = store.create({"title": "x"})
+    for st in ("brief", "draft", "factcheck", "edit"):
+        s.write({"brief": "brief.md", "draft": "draft.md", "factcheck": "factcheck.md", "edit": "edited.md"}[st], GOOD)
+        s.advance(st)
+    flat = _json.dumps({"scores": {k: 3 for k in stages.CRITERIA}, "fixes": []})
+    for expected in ("review", "revise", "review"):
+        job = stages.story_job(store.load(s.id))
+        assert job.stage == expected
+        stages.apply(job, flat if expected == "review" else GOOD)
+    job = stages.story_job(store.load(s.id))   # max_revisions is 2, but no gain -> package
+    assert job.stage == "package"

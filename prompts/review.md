@@ -9,6 +9,8 @@ $story
 Linter report (deterministic checks already run):
 $lint
 
+You are scoring the AI scaffold that goes to the writer, not the finished story. Each `[[HUMAN]]` slot will be filled with first-hand experience at the gate. Do not lower specificity, length or boost_readiness for detail a slot is designed to supply; do lower them for generic prose outside the slots, invented scenes, or claims without a named, checkable example. Only list fixes the AI can make without the writer's experience.
+
 Score each criterion 1-5:
 - voice: sounds like the author voice and exemplars, not generic AI prose
 - specificity: concrete details, examples and checkable claims instead of generalities
