@@ -1,0 +1,33 @@
+{
+  "id": "20261120-what-a-payments-internship-teaches-you-that-a-le",
+  "idea": {
+    "title": "What a payments internship teaches you that a LeetCode streak cannot",
+    "niche": "Software engineering internships",
+    "angle": "Argue that owning one boring, money-touching system (retries, refunds, reconciliation) is stronger interview evidence than more solved problems, as interviews shift towards project reasoning.",
+    "why_now": "Reporting in 2026 describes SWE interviews moving from memorised algorithm drills towards project reasoning and workflow evidence.",
+    "experience_hook": "The writer's part-time payments engineering work and how they now describe it to recruiters.",
+    "fit": 0.95,
+    "demand": 0.7,
+    "gap": 0.8,
+    "evidence": [
+      "https://letsdatascience.com/news/ai-changes-software-engineering-hiring-practices-da41ee53",
+      "https://finance.yahoo.com/sectors/technology/articles/ai-changing-job-fast-interview-103008561.html"
+    ],
+    "score": 0.7675,
+    "status": "used"
+  },
+  "state": "brief",
+  "history": [
+    {
+      "state": "idea",
+      "at": "2026-11-20T06:27:20+00:00",
+      "note": "created"
+    },
+    {
+      "state": "brief",
+      "at": "2026-11-20T06:27:52+00:00",
+      "note": ""
+    }
+  ],
+  "url": null
+}

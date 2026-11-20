@@ -1,0 +1,63 @@
+{
+  "id": "20261120-the-intern-screen-now-runs-before-anyone-reads-y",
+  "idea": {
+    "title": "The intern screen now runs before anyone reads your r\u00e9sum\u00e9",
+    "niche": "Software engineering internships",
+    "angle": "Automated coding assessments now gate applications before human review, so the r\u00e9sum\u00e9 is no longer the first test; how a second-year student should reorder their preparation.",
+    "why_now": "Summer 2027 cycle reports describe OAs sent before r\u00e9sum\u00e9 review and assessments redesigned around AI use.",
+    "experience_hook": "The writer's own Summer 2027 application season and the gap between advice that sounds productive and what moves an application forward.",
+    "fit": 0.9,
+    "demand": 0.85,
+    "gap": 0.7,
+    "evidence": [
+      "https://earlycareers.scalis.ai/p/tech-doesn-t-read-your-resume-first-it-tests-you",
+      "https://earlycareers.scalis.ai/p/the-intern-screen-got-rebuilt-juniors-are-the-target"
+    ],
+    "score": 0.7675,
+    "status": "used"
+  },
+  "state": "awaiting_human",
+  "history": [
+    {
+      "state": "idea",
+      "at": "2026-11-20T06:22:51+00:00",
+      "note": "created"
+    },
+    {
+      "state": "brief",
+      "at": "2026-11-20T06:23:25+00:00",
+      "note": ""
+    },
+    {
+      "state": "draft",
+      "at": "2026-11-20T06:23:59+00:00",
+      "note": ""
+    },
+    {
+      "state": "factcheck",
+      "at": "2026-11-20T06:24:35+00:00",
+      "note": ""
+    },
+    {
+      "state": "edit",
+      "at": "2026-11-20T06:25:05+00:00",
+      "note": ""
+    },
+    {
+      "state": "review",
+      "at": "2026-11-20T06:27:01+00:00",
+      "note": "avg=3.86 passed=False"
+    },
+    {
+      "state": "package",
+      "at": "2026-11-20T06:27:19+00:00",
+      "note": ""
+    },
+    {
+      "state": "awaiting_human",
+      "at": "2026-11-20T06:27:19+00:00",
+      "note": "ready for human gate"
+    }
+  ],
+  "url": null
+}
