@@ -1,0 +1,124 @@
+{
+  "rounds": [
+    {
+      "attempt": 0,
+      "avg": 3.71,
+      "lint_errors": 0,
+      "passed": false,
+      "revised": true,
+      "scores": {
+        "voice": 4,
+        "specificity": 4,
+        "argument": 4,
+        "structure": 4,
+        "clarity": 4,
+        "human_room": 3,
+        "boost_readiness": 3
+      },
+      "fixes": [
+        {
+          "where": "It also answers the secondary reader's worry.",
+          "problem": "Leaks the brief's internal language ('secondary reader') into publication prose; a Medium reader has no idea who that is.",
+          "fix": "Rewrite as a direct address to the reader weighing a famous name against an unglamorous team, e.g. 'If you are choosing between a famous name and the payments team, this is the trade-off.'"
+        },
+        {
+          "where": "[[HUMAN: Optional one sentence on what you have noticed in your own interviews this season, if it supports this. If you keep the claim about interviews shifting, it needs a source",
+          "problem": "This slot is an editorial note, not a prompt for experience, and the trend claim it refers to has already been removed. It clutters the opening and gives the writer nothing specific to answer.",
+          "fix": "Replace with a specific experience prompt, e.g. '[[HUMAN: one interview this season where you were asked to walk through a project rather than solve a puzzle: what the question was and what follow-up came next]]', or delete it if the writer has no such moment."
+        },
+        {
+          "where": "1. **The problem.** ... 2. **The failure mode.** ... 3. **The decision.** ... 4. **What you would change.**",
+          "problem": "Four bolded labels in one section breaks the house rule of at most one bold phrase per section.",
+          "fix": "Remove the bold from the list labels; keep them as plain lead-in words followed by a full stop."
+        },
+        {
+          "where": "It is the judgement a hundred more practice problems will not give you, and it is what a good interviewer is trying to find when they ask about your projects.",
+          "problem": "Restates the opening's contrast almost word for word and asserts what interviewers want with no support now that the trend source is gone.",
+          "fix": "Cut the second clause or tie it to the writer's own interview experience from the HUMAN slot; keep the ending to the decision and the closing question."
+        },
+        {
+          "where": "That shift, from correctness to safety under uncertainty, is the skill.",
+          "problem": "Strong line, but the section then ends on a weaker sentence about practice sites that repeats the opening.",
+          "fix": "End the section on the bold line, or replace the last sentence with one concrete payment example of choosing the safe action when the outcome is unknown."
+        },
+        {
+          "where": "Setting a balance to 100 is idempotent. Adding 100 to a balance is not.",
+          "problem": "Good example, but the section never shows what the idempotency key changes in code, which is the part an interviewer would probe.",
+          "fix": "Add two or three sentences (or a short pseudocode block under 10 lines) showing the store-result-by-key check before charging."
+        },
+        {
+          "where": "Event logs, audit tables and soft deletes are all versions of the same idea.",
+          "problem": "Soft deletes are not really append-only history; they keep current state with a flag, which weakens the generalisation.",
+          "fix": "Replace 'soft deletes' with 'event sourcing' or 'versioned records', or explain the link in a clause."
+        },
+        {
+          "where": "Outside payments, the same instinct shows up as data-quality checks, invariant monitors and the plain habit of counting things two ways",
+          "problem": "Triplet list in generic terms; reads as filler compared with the concrete payments material.",
+          "fix": "Keep one example and make it concrete, e.g. comparing a row count in two tables after a migration."
+        },
+        {
+          "where": "[[HUMAN: Your opinion with reasons: which of these three habits did you find hardest to learn",
+          "problem": "Good prompt, but it asks for two things at once and may yield a long, unfocused answer.",
+          "fix": "Split into 'hardest habit to learn and why' and 'one place it changed your non-payments code', or ask the writer to pick one."
+        },
+        {
+          "where": "Payments, billing and internal tools rarely appear on lists of dream internships.",
+          "problem": "Unsourced generalisation that reads as fact.",
+          "fix": "Frame it as the writer's observation ('In my experience...') or attach it to the HUMAN material about choosing the team."
+        }
+      ],
+      "verdict": "Clear, well-sourced scaffold with a sound three-habit spine; fix the leaked brief language and the editorial-note slot, and it is ready for the writer's experience to carry it."
+    },
+    {
+      "attempt": 1,
+      "avg": 4.0,
+      "lint_errors": 0,
+      "passed": true,
+      "revised": false,
+      "scores": {
+        "voice": 4,
+        "specificity": 4,
+        "argument": 4,
+        "structure": 4,
+        "clarity": 4,
+        "human_room": 4,
+        "boost_readiness": 4
+      },
+      "fixes": [
+        {
+          "where": "In my experience, payments, billing and internal tools are rarely the teams students hope to land.",
+          "problem": "Presents a first-person observation the writer has not supplied; the engine must not assert the writer's experience.",
+          "fix": "Replace with a neutral sentence ('Payments, billing and internal tools are not usually the teams students talk about.') or turn it into a short [[HUMAN]] prompt asking how the writer felt when assigned to the payments team."
+        },
+        {
+          "where": "[[HUMAN: Which of these three habits did you find hardest to learn, and why?",
+          "problem": "Five slots at ~150 words each push the projected length to about 1,833 words, just over the 1,800 limit.",
+          "fix": "Ask the writer to keep the two habit slots to two or three sentences each, or merge them back into one slot with a 100-word guide."
+        },
+        {
+          "where": "Take the timeout. Marking the order as failed is tempting, because it lets the user try again.",
+          "problem": "Good concrete example, but 'ask the provider what happened' is vague about how.",
+          "fix": "Name the mechanism in a clause: query the payment status by its ID, or wait for the provider's webhook."
+        },
+        {
+          "where": "results.save(idempotency_key, result)",
+          "problem": "The prose after the code says the key must be claimed atomically before charging, but the code saves after charging; a careful reader will notice the gap.",
+          "fix": "Keep the code but add the comment '# simplified: see below' on the save line, or move the claim-first point into one sentence directly before the block."
+        },
+        {
+          "where": "If you are choosing between a famous name and the payments team, this is the trade-off.",
+          "problem": "Reads slightly abrupt after the interview structure and repeats 'trade-off' from the previous paragraph.",
+          "fix": "Change to 'If you are choosing between a famous name and the payments team, here is the difference.'"
+        },
+        {
+          "where": "It is the judgement a hundred more practice problems will not give you.",
+          "problem": "Close echo of the opening's contrast; acceptable, but it is the third time the story makes this point.",
+          "fix": "Optionally cut it and let the closing question carry the ending."
+        }
+      ],
+      "verdict": "Structurally sound and well sourced; remove the invented 'in my experience' line and keep the slots short, and it is ready for the human gate."
+    }
+  ],
+  "passed": true,
+  "final_avg": 4.0
+}

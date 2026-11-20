@@ -16,7 +16,7 @@
     "score": 0.7675,
     "status": "used"
   },
-  "state": "brief",
+  "state": "awaiting_human",
   "history": [
     {
       "state": "idea",
@@ -27,6 +27,36 @@
       "state": "brief",
       "at": "2026-11-20T06:27:52+00:00",
       "note": ""
+    },
+    {
+      "state": "draft",
+      "at": "2026-11-20T06:38:44+00:00",
+      "note": ""
+    },
+    {
+      "state": "factcheck",
+      "at": "2026-11-20T06:39:23+00:00",
+      "note": ""
+    },
+    {
+      "state": "edit",
+      "at": "2026-11-20T06:39:56+00:00",
+      "note": ""
+    },
+    {
+      "state": "review",
+      "at": "2026-11-20T06:41:23+00:00",
+      "note": "avg=4.0 passed=True"
+    },
+    {
+      "state": "package",
+      "at": "2026-11-20T06:41:38+00:00",
+      "note": ""
+    },
+    {
+      "state": "awaiting_human",
+      "at": "2026-11-20T06:41:38+00:00",
+      "note": "ready for human gate"
     }
   ],
   "url": null

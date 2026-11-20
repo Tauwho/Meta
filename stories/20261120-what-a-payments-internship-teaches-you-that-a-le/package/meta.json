@@ -1,0 +1,22 @@
+{
+  "title": "What a payments internship teaches you that a LeetCode streak cannot",
+  "subtitle": "Practice problems prove you can solve puzzles. Systems that move money teach you to ask what happens when things go wrong twice.",
+  "tags": [
+    "Software Engineering",
+    "Internships",
+    "Payments",
+    "Fintech",
+    "Career Advice"
+  ],
+  "publication": {
+    "name": "Level Up Coding",
+    "url": "https://levelup.gitconnected.com",
+    "pitch": "This piece argues that owning an unglamorous payments system teaches three engineering habits (idempotency, append-only ledgers and reconciliation) that make stronger interview evidence than practice-problem streaks. It mixes a concrete engineering explainer, with links to Stripe's and Airbnb's own write-ups, with practical advice for students describing their internship work in interviews. Please check it against your current submission guidelines; I am happy to adjust length or tags."
+  },
+  "cover_image": {
+    "unsplash_query": "card payment terminal",
+    "alt": "A card payment terminal on a shop counter, waiting for a customer to tap their card."
+  },
+  "seo_description": "Idempotency, ledgers and reconciliation: the habits a payments internship builds, and how to turn them into a strong interview answer.",
+  "reading_minutes": 6
+}

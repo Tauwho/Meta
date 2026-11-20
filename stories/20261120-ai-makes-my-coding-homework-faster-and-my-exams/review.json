@@ -1,0 +1,53 @@
+{
+  "rounds": [
+    {
+      "attempt": 0,
+      "avg": 3.86,
+      "lint_errors": 0,
+      "passed": false,
+      "revised": true,
+      "scores": {
+        "voice": 4,
+        "specificity": 4,
+        "argument": 4,
+        "structure": 4,
+        "clarity": 4,
+        "human_room": 4,
+        "boost_readiness": 3
+      },
+      "fixes": [
+        {
+          "where": "# AI makes my coding homework faster and my exams harder",
+          "problem": "The title promises a first-person account, but outside the slots the body is written in the second person and general terms; the piece only becomes personal if the writer fills the slots fully.",
+          "fix": "Keep the title only if the writer's slot answers carry the story; otherwise switch to title option 3 or 5, or add a slot near 'What a study system should change' asking for one concrete before-and-after week."
+        },
+        {
+          "where": "Code from an assistant arrives without that picture.",
+          "problem": "Core claim of the debugging section rests on reasoning plus one modest study; the section reads more certain than the evidence.",
+          "fix": "Add a short hedge such as 'In my view' or a [[HUMAN]] prompt for one debugging moment from the writer's own coursework, so the claim rests on experience as well as reasoning."
+        },
+        {
+          "where": "The trend reaches beyond computer science. The Associated Press has reported on colleges turning to oral exams",
+          "problem": "The fact-check flagged the named-institution detail as needing verification against the AP text; the sentence is safe as written but vague.",
+          "fix": "Name one institution only after the writer confirms it in the AP article; otherwise leave the sentence as is."
+        },
+        {
+          "where": "Some work is a reasonable shortcut: boilerplate, syntax you have forgotten, or an explanation of a compiler error",
+          "problem": "Triplet list of shortcuts reads slightly generic next to the specific unassisted list that follows.",
+          "fix": "Tie one item to the writer's courses, e.g. looking up a C library call for the OS course."
+        },
+        {
+          "where": "This mirrors the hint-only tutor in the Bastani study.",
+          "problem": "Good callback, but the study's population (high-school maths) differs from university CS, which a sharp reader will notice.",
+          "fix": "Add half a sentence acknowledging the difference: 'different students and subject, but the same principle'."
+        },
+        {
+          "where": "If the assistant vanished tomorrow, which part of this week's work could you still do?",
+          "problem": "Strong closing question; the preceding optional slot sits awkwardly between the decision and the question.",
+          "fix": "Move the optional [[HUMAN]] slot above 'So decide in advance', so the story ends on the decision and the question."
+        }
+      ],
+      "verdict": "Well-sourced and clearly argued; its originality now depends on the writer's slot answers, so prioritise a vivid opening moment and an honest account of which habits worked."
+    }
+  ]
+}
