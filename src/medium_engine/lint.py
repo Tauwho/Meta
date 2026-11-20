@@ -19,6 +19,11 @@ US_SPELLINGS = {
     "catalog": "catalogue", "traveling": "travelling", "modeling": "modelling", "labeled": "labelled",
 }
 PLACEHOLDER = re.compile(r"\[\[HUMAN:.*?\]\]", re.S)
+# First-person experience claims. In AI-written text these must live inside [[HUMAN]] slots.
+FIRST_PERSON = re.compile(
+    r"\b(in my (experience|view|internship|work)|i (learned|learnt|realised|realized|noticed|found|remember|"
+    r"worked on|built|joined|spent|saw|used to)|my (internship|team|manager|job|first|own)|"
+    r"we (built|shipped|had|used|learned|learnt))\b", re.I)
 
 
 @dataclass
@@ -128,7 +133,8 @@ def _sentences(text: str) -> list[str]:
     return [p for p in parts if len(p.split()) >= 1]
 
 
-def lint(md: str) -> Report:
+def lint(md: str, ai: bool = False) -> Report:
+    """ai=True for AI-written text (before the gate): adds checks for invented experience and slot count."""
     cfg = config.settings()["quality"]["lint"]
     p = _parse(md)
     rep = Report()
@@ -180,6 +186,17 @@ def lint(md: str) -> Report:
     for level, text in p["headings"]:
         if level not in cfg["heading_levels_allowed"]:
             add("error", "heading-level", f"h{level} '{text[:40]}' (Medium supports ## and ### only)")
+
+    if ai:
+        for para in p["paragraphs"]:
+            unquoted = re.sub(r'"[^"]*"|“[^”]*”', "", PLACEHOLDER.sub("", para))  # quoted examples are fine
+            m = FIRST_PERSON.search(unquoted)
+            if m:
+                add("error", "ai-first-person",
+                    f"'{m.group(0)}' outside a [[HUMAN]] slot: the writer's experience must come from a slot")
+        lo_s, hi_s = config.settings()["story"]["human_slots"]
+        if not lo_s <= rep.stats["placeholders"] <= hi_s:
+            add("warn", "slot-count", f"{rep.stats['placeholders']} [[HUMAN]] slots (want {lo_s}-{hi_s})")
 
     # paragraphs and sentences
     if p["paragraphs"] and re.match(r"(picture|imagine)\b", p["paragraphs"][0], re.I):

@@ -70,7 +70,7 @@ def _quality_section(story: store.Story) -> list[str]:
             out += ["", "Open notes from the editor:", ""]
             out += [f"- \"{f.get('where', '')}\": {f.get('problem', '')}" for f in last["fixes"]]
         out.append("")
-    out += ["Linter:", "", lint.lint(story.read("package/story.md")).markdown(), ""]
+    out += ["Linter:", "", lint.lint(story.read("package/story.md"), ai=True).markdown(), ""]
     return out
 
 

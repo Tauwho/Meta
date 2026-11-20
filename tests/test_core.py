@@ -202,3 +202,14 @@ def test_review_stops_on_plateau(repo):
         stages.apply(job, flat if expected == "review" else GOOD)
     job = stages.story_job(store.load(s.id))   # max_revisions is 2, but no gain -> package
     assert job.stage == "package"
+
+
+def test_ai_lint_blocks_invented_experience(repo):
+    from medium_engine import lint
+    bad = GOOD.replace("The useful question", "In my experience, payments teams are underrated. The useful question")
+    assert any(i.rule == "ai-first-person" for i in lint.lint(bad, ai=True).errors)
+    assert lint.lint(bad).ok  # the writer's own final may speak in first person
+    neutral = GOOD.replace("I used to think my week was badly organised.", "Most busy weeks look badly organised.")
+    assert not any(i.rule == "ai-first-person" for i in lint.lint(neutral, ai=True).issues)
+    slotted = neutral.replace("[[HUMAN: the week", "[[HUMAN: In my experience the week")
+    assert not any(i.rule == "ai-first-person" for i in lint.lint(slotted, ai=True).issues)

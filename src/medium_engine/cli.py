@@ -91,7 +91,8 @@ def cmd_lint(a):
             sys.exit("nothing to lint yet")
         print(f"{s.id}/{name}")
         text = s.read(name)
-    rep = lint.lint(text)
+    ai = a.ai or (not a.file and name != "package/final.md")
+    rep = lint.lint(text, ai=ai)
     print(rep.markdown())
     sys.exit(1 if rep.errors else 0)
 
@@ -134,6 +135,7 @@ def main(argv=None):
     li = sub.add_parser("lint", help="style-lint a story (final > package > edited > draft) or --file")
     li.add_argument("id", nargs="?")
     li.add_argument("--file")
+    li.add_argument("--ai", action="store_true", help="apply AI-text checks (invented experience, slot count)")
     li.set_defaults(fn=cmd_lint)
     ex = sub.add_parser("export", help="render final.md (or story.md) to paste-ready HTML")
     ex.add_argument("id")

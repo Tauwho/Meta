@@ -183,7 +183,7 @@ def story_job(story: store.Story) -> Job | None:
         text = story.read("edited.md")
         if not rounds or rounds[-1].get("revised"):
             return Job("story", "review", sid, config.prompt(
-                "review", brief=story.read("brief.md"), story=text, lint=lint.lint(text).markdown()), fmt="json")
+                "review", brief=story.read("brief.md"), story=text, lint=lint.lint(text, ai=True).markdown()), fmt="json")
         last = rounds[-1]
         plateau = len(rounds) >= 2 and last["avg"] <= rounds[-2]["avg"] + q.get("min_gain", 0.1)
         if last["passed"] or last["attempt"] >= q["max_revisions"] or plateau:
@@ -191,7 +191,7 @@ def story_job(story: store.Story) -> Job | None:
             story.advance("review", f"avg={last['avg']} passed={last['passed']}")
             return story_job(story)
         return Job("story", "revise", sid, config.prompt(
-            "revise", story=text, fixes=_fixes_text(last), lint=lint.lint(text).markdown(), **c))
+            "revise", story=text, fixes=_fixes_text(last), lint=lint.lint(text, ai=True).markdown(), **c))
     if s == "review":
         return Job("story", "package", sid, config.prompt(
             "package", brief=story.read("brief.md"), edited=story.read("edited.md"), **c), fmt="json")
@@ -208,7 +208,7 @@ def apply_story(story: store.Story, stage: str, output) -> None:
     elif stage == "review":
         q = config.settings()["quality"]["review"]
         rounds = _rounds(story)
-        rep = lint.lint(story.read("edited.md"))
+        rep = lint.lint(story.read("edited.md"), ai=True)
         avg = review_avg(output)
         rounds.append({"attempt": len(rounds), "avg": avg, "lint_errors": len(rep.errors),
                        "passed": avg >= q["min_score"] and rep.ok, "revised": False, **output})
