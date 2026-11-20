@@ -28,7 +28,9 @@ def run(prompt: str, *, stage: str, web: bool = False, max_tokens: int = 64000) 
     `pause_turn` stops that long web-search turns can produce.
     """
     s = config.settings()["llm"]
-    system = config.prompt("system", voice=config.voice())
+    # voice + style + learned notes + exemplars are identical across every stage call,
+    # so cache the system block (cuts input cost on stages 2..n of a run).
+    system = [{"type": "text", "text": config.system_prompt(), "cache_control": {"type": "ephemeral"}}]
     tools: list[dict[str, Any]] = []
     if web:
         tools.append({

@@ -3,8 +3,7 @@
 One story moves through a fixed state machine. Every AI stage is idempotent and writes its output into `stories/<id>/`; `state.json` records where the story is.
 
 ```
- scout ──► idea ──► brief ──► draft ──► factcheck ──► edit ──► package ──► GATE (human) ──► published ──► track
-  AI        AI       AI        AI          AI           AI        AI          you              RSS          AI
+ scout ─► idea ─► brief ─► draft ─► factcheck ─► edit ─► review⟲ ─► package ─► GATE (you) ─► published ─► track ─► learn
 ```
 
 | Stage | Command | Reads | Writes | Notes |
@@ -15,9 +14,13 @@ One story moves through a fixed state machine. Every AI stage is idempotent and 
 | draft | (same) | brief | `draft.md` | Scaffolding draft with `[[HUMAN: ...]]` placeholders where experience must go |
 | factcheck | (same) | draft | `factcheck.md` | Claude + web search: every factual claim, verdict, source URL |
 | edit | (same) | draft + factcheck | `edited.md` | Fixes wrong claims, tightens, readability; keeps placeholders |
-| package | (same) | edited + brief | `package/story.md`, `package/meta.json`, `GATE.md` | Final title/subtitle, 5 tags, publication pitch, image prompt, checklist |
+| review | (same) | edited + brief + lint | `review.json`, `revisions/`, `edited.md` | Rubric score (7 criteria) + linter; auto-revise until avg ≥ 4.0 and lint clean (max 2 rounds). See `QUALITY.md` |
+| package | (same) | edited + brief | `package/story.md`, `package/meta.json`, `package/cover.png`, `GATE.md` | Final title/subtitle, 5 tags, publication pitch, house cover, checklist + quality report |
 | gate | `medium gate done <id> --url URL` | `package/final.md` (your version) | `state.json` | Refuses if placeholders remain or edit ratio < threshold |
 | track | `medium track` | author RSS + `data/earnings/*.csv` | `data/performance.json` | Confirms publish, ingests earnings, scores topics for scout |
+| learn | `medium learn` | `package/story.md` vs your `final.md` | `config/style-learned.md` | Turns your rewrites into style rules for future drafts |
+
+Helpers: `medium lint <id>|--file F`, `medium export <id>` (paste-ready HTML), `medium cover <id>`.
 
 `medium run <id>` advances a story through every AI stage until it reaches the gate. `medium run --all` does it for every story in progress. `medium status` lists stories by state.
 

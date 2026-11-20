@@ -37,9 +37,40 @@ def settings() -> dict[str, Any]:
         return yaml.safe_load(f)
 
 
+def _read(rel: str, default: str = "") -> str:
+    path = root() / rel
+    return path.read_text(encoding="utf-8") if path.exists() else default
+
+
 def voice() -> str:
-    path = root() / "config" / "voice.md"
-    return path.read_text(encoding="utf-8") if path.exists() else ""
+    return _read("config/voice.md")
+
+
+def style() -> str:
+    return _read("config/style.md")
+
+
+def learned() -> str:
+    return _read("config/style-learned.md", "(none yet)")
+
+
+def exemplars_dir() -> Path:
+    return root() / "config" / "exemplars"
+
+
+def exemplars(n: int | None = None) -> str:
+    """The n most recent human-final stories, newest first."""
+    if n is None:
+        n = settings().get("quality", {}).get("exemplars_in_prompt", 2)
+    files = sorted(exemplars_dir().glob("*.md"), reverse=True)[:n] if n else []
+    if not files:
+        return "(none yet; rely on the voice sample)"
+    return "\n\n".join(f'<exemplar name="{f.stem}">\n{f.read_text(encoding="utf-8")}\n</exemplar>' for f in files)
+
+
+def system_prompt() -> str:
+    """Stable per run (no timestamps), so it caches well across stage calls."""
+    return prompt("system", voice=voice(), style=style(), learned=learned(), exemplars=exemplars())
 
 
 def prompt(name: str, **values: Any) -> str:

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 
-from . import config, llm, rss, store
+from . import config, lint, llm, rss, store, visuals
 from .gate import write_gate_checklist
 
 
@@ -121,6 +121,8 @@ def run_stage(story: store.Story, stage: str) -> None:
             stage=stage,
         )
         story.write("edited.md", out)
+    elif stage == "review":
+        review_loop(story, c)
     elif stage == "package":
         meta = llm.extract_json(llm.run(
             config.prompt("package", brief=story.read("brief.md"), edited=story.read("edited.md"), **c),
@@ -128,10 +130,69 @@ def run_stage(story: store.Story, stage: str) -> None:
         ))
         story.write("package/meta.json", json.dumps(meta, indent=2, ensure_ascii=False))
         story.write("package/story.md", story.read("edited.md"))
+        try:
+            visuals.cover(story, meta)
+        except Exception as e:  # a missing font or Pillow issue must not block the pipeline
+            print(f"warn: cover not generated: {e}", file=sys.stderr)
         write_gate_checklist(story, meta)
     else:
         raise ValueError(f"unknown stage {stage}")
     story.advance(stage)
+
+
+CRITERIA = ["voice", "specificity", "argument", "structure", "clarity", "human_room", "boost_readiness"]
+
+
+def review_avg(review: dict) -> float:
+    scores = review.get("scores", {})
+    vals = [float(scores.get(k, 0)) for k in CRITERIA]
+    return round(sum(vals) / len(vals), 2)
+
+
+def review_loop(story: store.Story, c: dict) -> dict:
+    """Score edited.md against the rubric + linter; auto-revise until it clears the bar."""
+    q = config.settings()["quality"]["review"]
+    rounds = []
+    for attempt in range(q["max_revisions"] + 1):
+        text = story.read("edited.md")
+        rep = lint.lint(text)
+        review = llm.extract_json(llm.run(
+            config.prompt("review", brief=story.read("brief.md"), story=text, lint=rep.markdown()),
+            stage="review",
+        ))
+        avg = review_avg(review)
+        rounds.append({"attempt": attempt, "avg": avg, "lint_errors": len(rep.errors), **review})
+        if (avg >= q["min_score"] and rep.ok) or attempt == q["max_revisions"]:
+            break
+        fixes = "\n".join(f"- \"{f.get('where', '')}\": {f.get('problem', '')} -> {f.get('fix', '')}"
+                          for f in review.get("fixes", []))
+        story.write(f"revisions/edited.v{attempt}.md", text)
+        story.write("edited.md", llm.run(
+            config.prompt("revise", story=text, fixes=fixes or "(none)", lint=rep.markdown(), **c),
+            stage="edit",
+        ))
+    result = {"passed": rounds[-1]["avg"] >= q["min_score"] and rounds[-1]["lint_errors"] == 0,
+              "final_avg": rounds[-1]["avg"], "rounds": rounds}
+    story.write("review.json", json.dumps(result, indent=2, ensure_ascii=False))
+    return result
+
+
+def learn() -> list[str]:
+    """Update config/style-learned.md from published stories not yet learned from."""
+    done = []
+    for s in store.all_stories():
+        if s.state != "published" or s.idea.get("_learned"):
+            continue
+        if not (s.path("package/final.md").exists() and s.path("package/story.md").exists()):
+            continue
+        notes = llm.run(config.prompt(
+            "learn", ai=s.read("package/story.md"), final=s.read("package/final.md"), learned=config.learned(),
+        ), stage="edit")
+        (config.root() / "config" / "style-learned.md").write_text(notes.strip() + "\n", encoding="utf-8")
+        s.idea["_learned"] = True
+        s.save()
+        done.append(s.id)
+    return done
 
 
 def run_to_gate(story: store.Story) -> store.Story:

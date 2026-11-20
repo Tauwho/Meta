@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 
 from dotenv import load_dotenv
 
-from . import config, gate, stages, store, track
+from . import config, gate, lint, stages, store, track, visuals
 
 
 def cmd_scout(a):
@@ -58,6 +59,38 @@ def cmd_track(a):
         print(f"  {niche}: {p['stories']} stories, ${p['earnings_usd']}, score {p['score']}")
 
 
+def cmd_lint(a):
+    if a.file:
+        text = open(a.file, encoding="utf-8").read()
+    else:
+        s = store.load(a.id)
+        name = next((n for n in ("package/final.md", "package/story.md", "edited.md", "draft.md")
+                     if s.path(n).exists()), None)
+        if not name:
+            sys.exit("nothing to lint yet")
+        print(f"{s.id}/{name}")
+        text = s.read(name)
+    rep = lint.lint(text)
+    print(rep.markdown())
+    sys.exit(1 if rep.errors else 0)
+
+
+def cmd_export(a):
+    print(visuals.export_html(store.load(a.id)))
+
+
+def cmd_cover(a):
+    s = store.load(a.id)
+    meta_path = s.path("package/meta.json")
+    meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else None
+    print(visuals.cover(s, meta))
+
+
+def cmd_learn(a):
+    done = stages.learn()
+    print(f"learned from {len(done)} story(ies)" + ("".join(f"\n  {d}" for d in done)))
+
+
 def main(argv=None):
     load_dotenv(config.root() / ".env")
     p = argparse.ArgumentParser(prog="medium")
@@ -77,6 +110,17 @@ def main(argv=None):
     g.add_argument("--url")
     g.set_defaults(fn=cmd_gate)
     sub.add_parser("track", help="confirm publishes and ingest earnings").set_defaults(fn=cmd_track)
+    li = sub.add_parser("lint", help="style-lint a story (final > package > edited > draft) or --file")
+    li.add_argument("id", nargs="?")
+    li.add_argument("--file")
+    li.set_defaults(fn=cmd_lint)
+    ex = sub.add_parser("export", help="render final.md (or story.md) to paste-ready HTML")
+    ex.add_argument("id")
+    ex.set_defaults(fn=cmd_export)
+    co = sub.add_parser("cover", help="regenerate the house-style cover image")
+    co.add_argument("id")
+    co.set_defaults(fn=cmd_cover)
+    sub.add_parser("learn", help="update config/style-learned.md from your published rewrites").set_defaults(fn=cmd_learn)
     a = p.parse_args(argv)
     a.fn(a)
 

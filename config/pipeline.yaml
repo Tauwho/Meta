@@ -31,6 +31,61 @@ story:
 gate:
   min_edit_ratio: 0.25       # final.md must differ from story.md by at least this fraction (difflib)
   require_no_placeholders: true
+  require_lint_pass: true    # final.md must have no lint errors (warnings are allowed)
+
+quality:
+  review:
+    min_score: 4.0           # rubric average (1-5) the edited story must reach before packaging
+    max_revisions: 2         # auto-revise loops before handing over anyway (flagged in GATE.md)
+  lint:
+    title_chars: [40, 70]
+    subtitle_chars: [80, 140]
+    paragraph_max_words: 80
+    sentence_avg_words: [12, 20]
+    sentence_max_words: 40
+    one_line_paragraphs_max: 3
+    em_dash_per_150_words_max: 1.0
+    bold_per_section_max: 1
+    list_items_max: 7
+    heading_levels_allowed: [2, 3]
+    spelling: british          # flags common US spellings
+    banned_phrases:            # merged with quoted phrases under "## Never" in voice.md
+      - delve
+      - tapestry
+      - game-changer
+      - unlock
+      - navigate the complexities
+      - in today's fast-paced world
+      - it is important to note
+      - it's worth noting
+      - in conclusion
+      - embark on
+      - ever-evolving
+      - realm
+      - testament to
+      - seamless
+      - harness the power
+      - at the end of the day
+      - let's dive in
+      - buckle up
+    filler_words: [very, really, just, actually, basically, literally]
+    filler_per_1000_words_max: 6
+  exemplars_in_prompt: 2     # most recent human-final stories shown to the model as style references
+
+visual:
+  cover_size: [1400, 788]
+  fonts:                     # first existing file wins; Pillow default font as last resort
+    display: [C:/Windows/Fonts/georgiab.ttf, /usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf]
+    label: [C:/Windows/Fonts/arial.ttf, /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf]
+  palette:
+    ink: "#1A1A1A"
+    paper: "#F5F1EA"
+    accent: "#C8553D"
+  niche_colors:              # cover background per niche name; falls back to paper
+    Software engineering internships: "#1F3A5F"
+    CS student life and study systems: "#2F4F3E"
+    Payments engineering: "#3B2F4F"
+  illustration_style: "flat 2D editorial illustration, muted palette of #1A1A1A, #F5F1EA and #C8553D, simple shapes, generous negative space, no text, no gradients, no photorealism"
 
 cadence:
   stories_per_week: 3

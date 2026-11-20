@@ -39,7 +39,7 @@ def test_gate_refuses_placeholders_and_light_edits(repo):
     assert any("slot" in p for p in problems)
     assert any("edit ratio" in p for p in problems)
 
-    s.write("package/final.md", "# Mine\n\nI rewrote all of this from my own experience at length.\n" * 3)
+    s.write("package/final.md", "# Mine\n\n" + "I rewrote all of this from my own experience at length.\n\n" * 3)
     assert gate.check(s) == []
     gate.done(s, "https://medium.com/@me/mine-123")
     assert store.load(s.id).state == "published"
@@ -66,3 +66,66 @@ def test_rss_parse():
     <pubDate>Mon</pubDate><category>a</category></item></channel></rss>"""
     [item] = rss.parse(xml)
     assert item.link == "https://medium.com/p/1" and item.categories == ["a"]
+
+
+GOOD = """# Saying no is the productivity system nobody sells you
+
+*Most calendars are full of work that should never have been accepted, and no app can fix that part.*
+
+## The real problem
+
+I used to think my week was badly organised. It was not. It was overcommitted, and those are different problems.
+
+A better system helps you do the right work faster. It does nothing about work you should not be doing at all.
+
+## What changed
+
+[[HUMAN: the week you cut three commitments and what happened]]
+
+The useful question is not how to get more done. It is what would make the rest unnecessary.
+"""
+
+
+def test_lint_clean_story_has_no_errors(repo):
+    from medium_engine import lint
+    rep = lint.lint(GOOD)
+    assert rep.ok, [str(i) for i in rep.errors]
+    assert rep.stats["placeholders"] == 1 and rep.stats["sections"] == 2
+
+
+def test_lint_catches_banned_heading_and_voice_phrases(repo):
+    from medium_engine import lint
+    (repo / "config" / "voice.md").write_text('## Never\n- "secret sauce"\n', encoding="utf-8")
+    bad = GOOD + "\n#### Deep heading\n\nLet's delve into the secret sauce. The color is very nice.\n"
+    rules = {(i.level, i.rule) for i in lint.lint(bad).issues}
+    assert ("error", "banned-phrase") in rules
+    assert ("error", "heading-level") in rules
+    assert ("warn", "spelling") in rules
+    assert any("secret sauce" in str(i) for i in lint.lint(bad).errors)
+
+
+def test_review_average():
+    from medium_engine import stages
+    assert stages.review_avg({"scores": {k: 4 for k in stages.CRITERIA}}) == 4.0
+
+
+def test_cover_and_export(repo):
+    from medium_engine import visuals
+    s = store.create({"title": "Saying no is the productivity system nobody sells you",
+                      "niche": "CS student life and study systems"})
+    out = visuals.cover(s)
+    from PIL import Image
+    assert Image.open(out).size == (1400, 788)
+    s.write("package/final.md", GOOD)
+    html = visuals.export_html(s).read_text(encoding="utf-8")
+    assert "<h2>The real problem</h2>" in html
+
+
+def test_gate_done_saves_exemplar(repo):
+    s = store.create({"title": "x"})
+    s.write("package/story.md", "# Draft title that is long enough for lint\n\nAI text [[HUMAN: x]]\n" * 3)
+    s.advance("awaiting_human")
+    s.write("package/final.md", GOOD.replace("[[HUMAN: the week you cut three commitments and what happened]]",
+                                             "In March I dropped two clubs and a side project."))
+    gate.done(s, "https://medium.com/@me/x")
+    assert (repo / "config" / "exemplars" / f"{s.id}.md").exists()

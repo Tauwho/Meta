@@ -11,7 +11,7 @@ from pathlib import Path
 from . import config
 
 # Ordered AI stages, then the human gate, then post-publish.
-AI_STAGES = ["brief", "draft", "factcheck", "edit", "package"]
+AI_STAGES = ["brief", "draft", "factcheck", "edit", "review", "package"]
 STATES = ["idea", *AI_STAGES, "awaiting_human", "published"]
 
 

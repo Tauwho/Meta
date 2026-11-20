@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import difflib
+import json
 import re
+import shutil
 
-from . import config, store
+from . import config, lint, store
 
 PLACEHOLDER = re.compile(r"\[\[HUMAN:.*?\]\]", re.S)
 
@@ -34,7 +36,10 @@ def write_gate_checklist(story: store.Story, meta: dict) -> None:
         f"- [ ] Fill all {len(slots)} `[[HUMAN]]` slots with your own experience (do not ask an AI to fill them)",
         f"- [ ] Rewrite in your voice (gate needs at least {int(min_ratio * 100)}% changed vs the AI package)",
         "- [ ] Check every non-OK row in `factcheck.md`; cut what you can't stand behind",
-        f"- [ ] Paste into Medium; cover image via Unsplash: `{meta.get('cover_image', {}).get('unsplash_query', '')}`",
+        f"- [ ] `medium lint {story.id}` shows no errors on final.md",
+        f"- [ ] `medium export {story.id}` -> open `package/final.html`, select all, paste into Medium",
+        "- [ ] Cover: upload `package/cover.png` (house template)"
+        f" or, for a photo story, Unsplash: `{meta.get('cover_image', {}).get('unsplash_query', '')}`",
         f"- [ ] Tags: {', '.join(meta.get('tags', []))}",
         "- [ ] Paywall ON (Partner Program)",
         f"- [ ] Submit to **{pub.get('name', '?')}** ({pub.get('url', '')}) or publish directly",
@@ -48,8 +53,25 @@ def write_gate_checklist(story: store.Story, meta: dict) -> None:
         "",
         pub.get("pitch", ""),
         "",
+        *_quality_section(story),
     ]
     story.write("GATE.md", "\n".join(lines))
+
+
+def _quality_section(story: store.Story) -> list[str]:
+    out = ["## Quality report (AI package)", ""]
+    if story.path("review.json").exists():
+        r = json.loads(story.read("review.json"))
+        last = r["rounds"][-1]
+        flag = "" if r["passed"] else "  **(below the bar after max revisions: look harder at this one)**"
+        out += [f"Editor rubric average {r['final_avg']} after {len(r['rounds'])} round(s){flag}", ""]
+        out += [f"- {k}: {v}" for k, v in last.get("scores", {}).items()]
+        if last.get("fixes"):
+            out += ["", "Open notes from the editor:", ""]
+            out += [f"- \"{f.get('where', '')}\": {f.get('problem', '')}" for f in last["fixes"]]
+        out.append("")
+    out += ["Linter:", "", lint.lint(story.read("package/story.md")).markdown(), ""]
+    return out
 
 
 def check(story: store.Story) -> list[str]:
@@ -66,6 +88,8 @@ def check(story: store.Story) -> list[str]:
     ratio = edit_ratio(story.read("package/story.md"), final)
     if ratio < g["min_edit_ratio"]:
         problems.append(f"edit ratio {ratio:.0%} < required {g['min_edit_ratio']:.0%}: rewrite more in your own voice")
+    if g.get("require_lint_pass", True):
+        problems += [f"lint {i}" for i in lint.lint(final).errors]
     return problems
 
 
@@ -78,4 +102,7 @@ def done(story: store.Story, url: str) -> None:
     if problems:
         raise SystemExit("gate refused:\n- " + "\n- ".join(problems))
     story.url = url
+    # The human's final becomes a style exemplar for future drafts.
+    config.exemplars_dir().mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(story.path("package/final.md"), config.exemplars_dir() / f"{story.id}.md")
     story.advance("published", f"edit_ratio={edit_ratio(story.read('package/story.md'), story.read('package/final.md'))}")
