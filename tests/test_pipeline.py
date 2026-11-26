@@ -16,7 +16,8 @@ def repo(tmp_path, monkeypatch):
     shutil.copytree(REPO / "prompts", tmp_path / "prompts")
     monkeypatch.setenv("META_ROOT", str(tmp_path))
     config.settings.cache_clear()
-    config.settings()["publish"]["require_approval"] = True  # tests pin the gate on; real config may differ
+    config.settings()["publish"]["require_approval"] = True  # tests pin these; real config may differ
+    config.settings()["accounts"]["A"]["active"] = True
     monkeypatch.setattr(trends, "collect", lambda account: [{"source": "t", "title": "Hoa hậu Hoàn vũ 2026"}])
     yield tmp_path
     config.settings.cache_clear()
@@ -49,6 +50,7 @@ def test_add_drafts_validates_and_dedupes(repo):
         posts.add_drafts("A", {"posts": [draft(text="see https://x")]})
     with pytest.raises(ValueError, match="sources"):
         posts.add_drafts("A", {"posts": [draft(sources=[])]})
+    assert posts.add_drafts("A", {"posts": [draft(topic="take", kind="take", sources=[], reply="")]})
     assert len(posts.add_drafts("A", {"posts": [draft(), draft(topic="HOA  HẬU")]})) == 1
     assert posts.add_drafts("A", {"posts": [draft()]}) == []  # topic covered recently
 

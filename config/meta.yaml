@@ -3,7 +3,7 @@
 accounts:
   A:
     handle: goycoon
-    active: true
+    active: false     # paused 2026-11-26: account suspended, appeal pending
     persona: >
       Love and relationships. A warm, witty Vietnamese account about yêu đương: dating,
       crushes, couples, breakups, marriage, situationships, red/green flags, love languages,
@@ -34,8 +34,8 @@ accounts:
       - https://tinhte.vn/rss
 
 cadence:
-  queue_target: 6          # keep this many posts ready (pending approval + approved) per account
-  write_batch: 4           # drafts per write job
+  queue_target: 4          # keep this many posts ready (pending approval + approved) per account
+  write_batch: 3           # drafts per write job
   min_gap_minutes: 120     # between two posts on the same account (runs are 3-4 h apart)
   post_hours_vn: [7, 23]   # only publish between these hours, Vietnam time (UTC+7)
   max_age_hours: 36        # trend posts older than this are expired instead of published

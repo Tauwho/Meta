@@ -20,10 +20,12 @@ $performance
 
 ## Steps
 
-1. Pick $n topics that fit the persona's niche and are big right now: a niche story from the signals, or a general trend you can give a genuine niche angle (no forced links). They must be safe under the hard rules. Vary the angle across posts (news, debate, relatable situation, celebrity, tip). Skip anything political or tragic.
-2. For each topic, open at least one reputable source with web search/fetch and confirm the key facts. Note the URLs you used.
-3. Write the post: hook line, the specific detail, your angle, a question or take people will answer. Max 500 characters, aim 150-350.
-4. Write the `reply`: one line of source credit plus one extra useful detail, max 300 characters.
+1. Pick $n topics that fit the persona's niche and that people feel something about right now: a niche story from the signals, a general trend with a genuine niche angle (no forced links), or a timeless relatable situation the signals remind you of. Safe under the hard rules. Skip anything political or tragic.
+2. Mix kinds: at least half `take` (opinion, relatable situation, debate, "nếu là bạn"), the rest `news` (reaction to a specific real event). Vary the shape so no two posts read the same.
+3. For every `news` post, open at least one reputable source with web search/fetch and confirm the facts you use; list the URLs in `sources`. `take` posts may leave `sources` empty.
+4. Write each post in the Threads style from your instructions: 1-4 short lines, aim 60-220 characters, hook first, one idea, one clear side, one open question at the end, casual Vietnamese, at most 1 emoji.
+5. Optional `reply`: one extra fun detail or a follow-up question, same casual voice, max 200 characters; for `news` it may say casually where it was read. Leave it empty for most `take` posts.
+6. Before you output, reread each post as a Vietnamese 22-year-old scrolling at midnight: would you stop, and would you reply? If not, rewrite it.
 
 ## Output
 
@@ -31,9 +33,10 @@ Only this JSON object:
 
 {"posts": [
   {"topic": "short Vietnamese topic name",
-   "category": "short label inside the niche, e.g. celeb-couple, dating, debate, ai-tool, gadget",
-   "why_now": "one line: what signal shows people care today",
+   "kind": "take | news",
+   "category": "short label inside the niche, e.g. dating, situationship, celeb-couple, debate, ai-tool, gadget",
+   "why_now": "one line: what signal or feeling makes this land today",
    "text": "the post",
-   "reply": "Nguồn: ... + one extra detail",
-   "sources": ["https://...", "https://..."]}
+   "reply": "",
+   "sources": []}
 ]}

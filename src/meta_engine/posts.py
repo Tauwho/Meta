@@ -93,16 +93,19 @@ def add_drafts(account: str, data: dict) -> list[str]:
         if "http" in text:
             raise ValueError(f"posts[{i}].text has a link; put sources in reply")
         reply = check_text(it["reply"], f"posts[{i}].reply") if it.get("reply") else ""
+        kind = it.get("kind", "news")
+        if kind not in ("take", "news"):
+            raise ValueError(f"posts[{i}].kind must be take|news")
         sources = [s for s in it.get("sources", []) if isinstance(s, str) and s.startswith("http")]
-        if not sources:
-            raise ValueError(f"posts[{i}].sources needs at least one URL")
+        if kind == "news" and not sources:
+            raise ValueError(f"posts[{i}] is news; sources needs at least one URL")
         if _norm(topic) in seen:
             continue  # already covered this topic recently; drop silently
         seen.add(_norm(topic))
         pid = f"{stamp.strftime('%Y%m%dT%H%M%S')}-{account}{i}"
         posts.append({
             "id": pid, "account": account, "state": "draft", "created": iso(stamp),
-            "topic": topic, "category": str(it.get("category", "")), "why_now": str(it.get("why_now", "")),
+            "topic": topic, "kind": kind, "category": str(it.get("category", "")), "why_now": str(it.get("why_now", "")),
             "text": text, "reply": reply, "sources": sources,
         })
         added.append(pid)

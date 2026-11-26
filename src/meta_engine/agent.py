@@ -55,7 +55,8 @@ def plan() -> dict | None:
         account = drafts[0]["account"]
         batch = [p for p in drafts if p["account"] == account]
         acc = config.settings()["accounts"][account]
-        view = [{k: p[k] for k in ("id", "topic", "category", "why_now", "text", "reply", "sources")} for p in batch]
+        view = [{k: p.get(k, "") for k in ("id", "topic", "kind", "category", "why_now", "text", "reply", "sources")}
+                for p in batch]
         return {"stage": "review", "account": account, "web": True, "prompt": config.prompt(
             "review", account=account, persona=acc["persona"], min_score=config.settings()["review"]["min_score"],
             drafts=json.dumps(view, ensure_ascii=False, indent=2), recent=_recent(all_posts, account))}
