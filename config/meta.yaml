@@ -22,7 +22,7 @@ accounts:
       - https://vnexpress.net/rss/giai-tri.rss
   B:
     handle: comtumb
-    active: false     # suspended 2026-11-26 (appeal pending), never automated; when restored: warm up, Threads Tester, `meta auth B`
+    active: true      # turned on 2026-11-26 at user request (no warm-up); needs `meta auth B`
     persona: >
       Tech and AI. A sharp Vietnamese account that explains today's tech and AI news in plain
       words: new AI models and tools, phones and gadgets, big-tech moves, AI in daily life and
