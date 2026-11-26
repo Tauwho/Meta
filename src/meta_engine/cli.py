@@ -130,6 +130,23 @@ def cmd_delete(a):
         print(f"deleted {pid} {p.get('permalink', '')}")
 
 
+CLEARABLE = ("poll", "card", "topic_tag", "quote_post_id")
+
+
+def cmd_clear(a):
+    """Drop optional features from a queued post (e.g. a poll the API rejects) and reset its error count."""
+    all_posts = posts.load()
+    p = posts.find(all_posts, a.id)
+    if p["state"] not in ("approved", "pending", "draft"):
+        sys.exit(f"{a.id} is {p['state']}; only queued posts can be changed")
+    for f in a.fields:
+        p[f] = [] if f == "poll" else ""
+    p.pop("publish_errors", None)
+    p.pop("last_error", None)
+    posts.save(all_posts)
+    print(f"{a.id}: cleared {', '.join(a.fields)}")
+
+
 def cmd_track(a):
     all_posts = posts.load()
     cutoff = config.now() - timedelta(days=config.settings()["track"]["days"])
@@ -160,7 +177,8 @@ def main(argv=None):
     load_dotenv(config.root() / ".env")
     p = argparse.ArgumentParser(prog="meta", description="Threads content engine")
     sub = p.add_subparsers(dest="cmd", required=True)
-    for name, fn in (("auth", threads.auth), ("whoami", threads.whoami), ("refresh", threads.refresh)):
+    for name, fn in (("auth", threads.auth), ("whoami", threads.whoami), ("refresh", threads.refresh),
+                     ("recent", threads.recent)):
         s = sub.add_parser(name, help=f"Threads token: {name}")
         s.add_argument("slot", type=str.upper, choices=["A", "B"])
         s.set_defaults(fn=lambda a, fn=fn: fn(a.slot))
@@ -182,6 +200,10 @@ def main(argv=None):
     dl = sub.add_parser("delete", help="permanently delete published posts (and their reply) from Threads")
     dl.add_argument("ids", nargs="+")
     dl.set_defaults(fn=cmd_delete)
+    cl = sub.add_parser("clear", help="drop optional features from a queued post: poll, card, topic_tag, quote_post_id")
+    cl.add_argument("id")
+    cl.add_argument("fields", nargs="+", choices=CLEARABLE)
+    cl.set_defaults(fn=cmd_clear)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)
     tr = sub.add_parser("trends", help="print today's trend signals for an account")

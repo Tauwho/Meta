@@ -179,6 +179,14 @@ def permalink(slot, media_id):
         {"fields": "permalink", "access_token": _token(slot)})).get("permalink", "")
 
 
+def recent(slot, limit=5):
+    """The account's latest posts: check this before retrying a failed publish, to never double-post."""
+    r = _call(f"{GRAPH}/v1.0/me/threads?" + urllib.parse.urlencode(
+        {"fields": "id,text,timestamp,permalink", "limit": limit, "access_token": _token(slot)}))
+    for t in r.get("data", []):
+        print(t["timestamp"], t["id"], t.get("permalink", ""), " ".join((t.get("text") or "").split())[:60])
+
+
 METRICS = "views,likes,replies,reposts,quotes,shares"
 
 

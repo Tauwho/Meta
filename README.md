@@ -33,7 +33,8 @@ git clone https://github.com/Tauwho/meta-media.git media   # public image hostin
 | `meta publish [--dry-run]` | at most one due post per active account |
 | `meta track` | pull insights for posts from the last 14 days |
 | `meta status` | counts by state |
-| `meta auth / whoami / refresh A\|B` | Threads tokens (refresh before 60 days) |
+| `meta auth / whoami / refresh / recent A\|B` | Threads tokens (refresh before 60 days); `recent` lists the latest live posts |
+| `meta clear <id> poll\|card\|topic_tag\|quote_post_id` | drop a feature the API rejects from a queued post |
 
 ## Files
 

@@ -188,3 +188,15 @@ def test_publish_retries_transient_missing_container(monkeypatch):
     monkeypatch.setattr(threads, "_user", lambda slot: "uid")
     monkeypatch.setattr(threads.time, "sleep", lambda s: None)
     assert threads.publish_text("A", "hi") == "m1" and calls["publish"] == 2
+
+
+def test_clear_drops_features_only_on_queued_posts(repo):
+    from meta_engine import cli
+    (pid,) = posts.add_drafts("A", {"posts": [draft(poll=["a", "b"], topic_tag="AI")]})
+    ps = posts.load(); posts.find(ps, pid)["publish_errors"] = 1; posts.save(ps)
+    cli.main(["clear", pid, "poll", "topic_tag"])
+    p = posts.find(posts.load(), pid)
+    assert p["poll"] == [] and p["topic_tag"] == "" and "publish_errors" not in p
+    ps = posts.load(); posts.find(ps, pid)["state"] = "published"; posts.save(ps)
+    with pytest.raises(SystemExit):
+        cli.main(["clear", pid, "poll"])
