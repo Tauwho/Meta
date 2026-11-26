@@ -109,3 +109,10 @@ def test_card_renders_4x5_png(tmp_path):
     from meta_engine import card
     out = card.render("Yêu xa 2 năm mà chưa từng nói chuyện tương lai? " * 3, "goycoon", tmp_path / "c.png", seed="x")
     assert Image.open(out).size == (1080, 1350)
+
+
+def test_write_job_goes_to_emptiest_queue(repo):
+    config.settings()["accounts"]["B"]["active"] = True
+    posts.add_drafts("A", {"posts": [draft()]})
+    posts.apply_reviews({"reviews": [{"id": posts.load()[0]["id"], "verdict": "pass", "score": 9}]})
+    assert agent.plan()["account"] == "B"

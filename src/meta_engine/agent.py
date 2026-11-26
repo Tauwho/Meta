@@ -61,8 +61,12 @@ def plan() -> dict | None:
             "review", account=account, persona=acc["persona"], min_score=config.settings()["review"]["min_score"],
             drafts=json.dumps(view, ensure_ascii=False, indent=2), recent=_recent(all_posts, account))}
     cad = config.settings()["cadence"]
-    for account, acc in config.active_accounts().items():
-        ready = sum(1 for p in all_posts if p["account"] == account and p["state"] in ("pending", "approved"))
+    def ready_count(account):
+        return sum(1 for p in all_posts if p["account"] == account and p["state"] in ("pending", "approved"))
+
+    # emptiest queue first, so one account never starves the others within a run's job limit
+    for account, acc in sorted(config.active_accounts().items(), key=lambda kv: ready_count(kv[0])):
+        ready = ready_count(account)
         if ready >= cad["queue_target"]:
             continue
         n = min(cad["write_batch"], cad["queue_target"] - ready)
