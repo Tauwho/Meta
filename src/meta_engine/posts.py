@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from . import config
 
 MAX_CHARS = 500  # Threads hard limit per post
+CARD_CHARS = 160  # beyond this the card text gets too small to read in the feed
 STATES = ["draft", "pending", "approved", "rejected", "published", "expired", "deleted"]
 
 
@@ -93,6 +94,9 @@ def add_drafts(account: str, data: dict) -> list[str]:
         if "http" in text:
             raise ValueError(f"posts[{i}].text has a link; put sources in reply")
         reply = check_text(it["reply"], f"posts[{i}].reply") if it.get("reply") else ""
+        card_text = str(it.get("card") or "").strip()
+        if len(card_text) > CARD_CHARS:
+            raise ValueError(f"posts[{i}].card is {len(card_text)} chars; max {CARD_CHARS}")
         kind = it.get("kind", "news")
         if kind not in ("take", "news"):
             raise ValueError(f"posts[{i}].kind must be take|news")
@@ -106,7 +110,7 @@ def add_drafts(account: str, data: dict) -> list[str]:
         posts.append({
             "id": pid, "account": account, "state": "draft", "created": iso(stamp),
             "topic": topic, "kind": kind, "category": str(it.get("category", "")), "why_now": str(it.get("why_now", "")),
-            "text": text, "reply": reply, "sources": sources,
+            "text": text, "card": card_text, "reply": reply, "sources": sources,
         })
         added.append(pid)
     save(posts)
@@ -136,6 +140,8 @@ def apply_reviews(data: dict) -> dict:
                 raise ValueError(f"reviews[{i}].text has a link")
             if r.get("reply"):
                 p["reply"] = check_text(r["reply"], f"reviews[{i}].reply")
+            if "card" in r:
+                p["card"] = str(r.get("card") or "").strip()[:CARD_CHARS]
         p["review"] = {"verdict": verdict, "score": score, "reason": str(r.get("reason", ""))}
         p["state"] = "rejected" if verdict == "reject" or score < min_score else ok_state
         counts[p["state"]] = counts.get(p["state"], 0) + 1

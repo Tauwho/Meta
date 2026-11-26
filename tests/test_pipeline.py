@@ -94,3 +94,17 @@ def test_review_skips_gate_when_approval_off(repo):
     config.settings()["publish"]["require_approval"] = False
     (a,) = posts.add_drafts("A", {"posts": [draft()]})
     assert posts.apply_reviews({"reviews": [{"id": a, "verdict": "pass", "score": 8}]}) == {"approved": 1}
+
+
+def test_card_length_is_validated_and_stored(repo):
+    with pytest.raises(ValueError, match="card"):
+        posts.add_drafts("A", {"posts": [draft(card="x" * 161)]})
+    (pid,) = posts.add_drafts("A", {"posts": [draft(card="Ai cũng từng chờ tin nhắn tới sáng")]})
+    assert posts.load()[0]["card"] == "Ai cũng từng chờ tin nhắn tới sáng"
+
+
+def test_card_renders_4x5_png(tmp_path):
+    from PIL import Image
+    from meta_engine import card
+    out = card.render("Yêu xa 2 năm mà chưa từng nói chuyện tương lai? " * 3, "goycoon", tmp_path / "c.png", seed="x")
+    assert Image.open(out).size == (1080, 1350)

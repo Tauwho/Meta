@@ -7,7 +7,8 @@ trends (Google Trends VN + VN news RSS)
   -> write   (agent job: research + draft N posts, sources required)
   -> review  (agent job: fact-check + hard rules + score; pass / fix / reject)
   -> pending -> `meta approve` (only while publish.require_approval is true)
-  -> approved -> `meta publish` (posting window, gap, expiry) -> post + source reply
+  -> approved -> `meta publish` (posting window, gap, expiry) -> text post, or image post with a text card
+     (card PNG pushed to the public Tauwho/meta-media repo, cloned at ./media) -> optional reply
   -> `meta track` (views, likes, replies, reposts, quotes, shares) -> fed back into the next write job
 ```
 
@@ -15,6 +16,7 @@ trends (Google Trends VN + VN news RSS)
 
 ```powershell
 python -m venv .venv; .venv\Scripts\python -m pip install -e ".[dev]"
+git clone https://github.com/Tauwho/meta-media.git media   # public image hosting for cards
 .venv\Scripts\meta auth A      # one-time per account; see docs/RESEARCH.md for the Meta app
 .venv\Scripts\pytest
 ```
@@ -38,6 +40,7 @@ python -m venv .venv; .venv\Scripts\python -m pip install -e ".[dev]"
 |---|---|
 | `config/meta.yaml` | accounts + personas, cadence, approval switch, review threshold, trend feeds |
 | `prompts/` | `system.md` (voice + hard rules), `write.md`, `review.md` |
+| `src/meta_engine/card.py`, `media.py` | text-card renderer (4:5, Segoe UI) and public hosting via `media/` |
 | `data/posts.jsonl` | every post with state, sources, review, Threads ids and insights |
 | `docs/POLICY.md` | what the engine must never post, and why |
 | `.env` | app id/secret and per-account tokens (gitignored) |

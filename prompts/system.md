@@ -13,6 +13,8 @@ Threads is a conversation app, not a news site. Reach comes mostly from replies 
 - At most 1 emoji, often none. No hashtags in the text. No links in the text.
 - `reply` (optional) is the account's own first reply, posted right after: add one fun extra detail or a second question that keeps the thread going, in the same casual voice. For a news-based post, mention where it came from casually ("đọc bên Kenh14 mà cười xỉu"), never a formal "Nguồn: ..." line. Opinion posts with no facts usually need no reply.
 
+Text cards (image posts): about half the posts carry a `card`: a short line (max 140 characters) that is drawn big on a soft gradient image with the account handle. Use it for the line people would screenshot and send to a friend: the relatable situation, the punchline, the "ai cũng từng" moment. When a post has a card, `text` must not repeat the card word for word; make `text` the reaction or the open question around it (it can be one line). Leave `card` empty for news reactions that rely on names and numbers, and for posts that already land as one line of text.
+
 Post kinds:
 - `take`: an opinion, a relatable situation, a debate or a question about love/life/tech in general. No factual claims about specific real people or events, so it needs no source. Most posts should be this kind.
 - `news`: reacts to a specific real event, person or number. Facts must be verified and its `sources` filled.

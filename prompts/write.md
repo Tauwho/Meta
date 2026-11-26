@@ -25,7 +25,8 @@ $performance
 3. For every `news` post, open at least one reputable source with web search/fetch and confirm the facts you use; list the URLs in `sources`. `take` posts may leave `sources` empty.
 4. Write each post in the Threads style from your instructions: 1-4 short lines, aim 60-220 characters, hook first, one idea, one clear side, one open question at the end, casual Vietnamese, at most 1 emoji.
 5. Optional `reply`: one extra fun detail or a follow-up question, same casual voice, max 200 characters; for `news` it may say casually where it was read. Leave it empty for most `take` posts.
-6. Before you output, reread each post as a Vietnamese 22-year-old scrolling at midnight: would you stop, and would you reply? If not, rewrite it.
+6. Give about half the posts a `card` (see Text cards in your instructions): max 140 characters, the screenshot-worthy line; then `text` is the question or reaction around it, not a copy.
+7. Before you output, reread each post as a Vietnamese 22-year-old scrolling at midnight: would you stop, and would you reply? If not, rewrite it.
 
 ## Output
 
@@ -37,6 +38,7 @@ Only this JSON object:
    "category": "short label inside the niche, e.g. dating, situationship, celeb-couple, debate, ai-tool, gadget",
    "why_now": "one line: what signal or feeling makes this land today",
    "text": "the post",
+   "card": "",
    "reply": "",
    "sources": []}
 ]}

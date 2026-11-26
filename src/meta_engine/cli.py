@@ -9,7 +9,7 @@ from datetime import timedelta
 
 from dotenv import load_dotenv
 
-from . import agent, config, posts, threads, trends
+from . import agent, card, config, media, posts, threads, trends
 
 
 def cmd_agent(a):
@@ -65,9 +65,15 @@ def cmd_publish(a):
             print(f"{account}: nothing due (window, gap or empty queue)")
             continue
         if a.dry_run:
-            print(f"{account}: would publish {p['id']}:\n{p['text']}")
+            print(f"{account}: would publish {p['id']}" + (f" with card: {p['card']!r}" if p.get("card") else "")
+                  + f"\n{p['text']}")
             continue
-        p["media_id"] = threads.publish_text(account, p["text"])
+        image_url = None
+        if p.get("card"):
+            handle = config.settings()["accounts"][account].get("handle", "")
+            png = card.render(p["card"], handle, media.repo() / account / f"{p['id']}.png", seed=p["id"])
+            image_url = p["image_url"] = media.host(png)
+        p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url)
         p["state"], p["published_at"] = "published", posts.iso(at)
         posts.save(all_posts)  # saved before the reply so a reply failure never re-posts the main text
         if p["reply"]:
