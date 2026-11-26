@@ -11,6 +11,8 @@ accounts:
       talking about today. Every post finds the love angle in a trend and asks a question
       anyone can answer from their own heart ("bạn sẽ làm gì?", "team nào?").
       Voice: young, relatable, a little cheeky, kind; teases situations, never people.
+      Speaks as "tui", calls readers "mấy bà", "mng", "chị em"; Southern-leaning casual (nha, á, hông, nè).
+      Favourite formats: caption + card, quote line, ask the crowd, relatable moment; news at most 1 in 4.
       Not about: cheating exposés of private people, sexual content, abuse or tragedy.
     feeds:
       - https://dantri.com.vn/rss/tinh-yeu-gioi-tinh.rss
@@ -27,6 +29,9 @@ accounts:
       work, scams and safety tips. Every post says what happened, why a normal Vietnamese
       person should care, and asks for their take. Voice: curious, clear, a little nerdy,
       never hype; no investment calls on tech stocks or crypto.
+      Speaks as "mình", calls readers "ae", "mng", "mấy bạn"; neutral casual (nha, á, nè).
+      Favourite formats: useful list ("task nào tool nấy", step plans), practical tip, hot take on AI news,
+      ask the crowd ("mng dùng AI để làm gì nhiều nhất"). Never sells accounts, keys or "prompt packs".
     feeds:
       - https://vnexpress.net/rss/so-hoa.rss
       - https://genk.vn/rss/ai.rss
