@@ -1,44 +1,43 @@
-# Medium engine
+# Meta engine
 
-AI-centered pipeline for earning through the Medium Partner Program. Claude does the research, briefing, drafting scaffold, fact-checking, editing, packaging, scheduling and analytics. You do one step per story: add your own experience, make it yours, publish.
-
-Why not fully autonomous: since May 2024 Medium bars AI-generated writing from the paywall, excludes it from distribution and Boost, and can revoke Partner Program enrollment. Medium's API has also been unsupported since 2023. Details in [docs/RESEARCH.md](docs/RESEARCH.md); the rules the pipeline enforces are in [docs/POLICY.md](docs/POLICY.md).
+Trend-driven Threads content for Vietnamese audiences. A scheduled Claude Code task (on a Claude subscription, no API key) reads what Vietnam is searching and reading today, researches it, writes short Vietnamese posts, reviews them, and publishes through the official Threads API.
 
 ```
-scout -> idea -> brief -> draft -> factcheck -> edit -> review (auto-revise) -> package -> GATE (you) -> published -> track -> learn
+trends (Google Trends VN + VN news RSS)
+  -> write   (agent job: research + draft N posts, sources required)
+  -> review  (agent job: fact-check + hard rules + score; pass / fix / reject)
+  -> pending -> `meta approve` (only while publish.require_approval is true)
+  -> approved -> `meta publish` (posting window, gap, expiry) -> post + source reply
+  -> `meta track` (views, likes, replies, reposts, quotes, shares) -> fed back into the next write job
 ```
 
-Consistency comes from four layers: your voice (`config/voice.md`), the house style (`config/style.md`) enforced by a linter and a rubric review, exemplars + learned rules taken from your own published rewrites, and one cover template (`config/visual.md`). See [docs/QUALITY.md](docs/QUALITY.md).
+## Setup
 
-## Quick start
-
-```bash
-pip install -e .[dev]
-# fill config/voice.md and config/pipeline.yaml (niches, medium_handle)
-pytest
-# AI work runs on your Claude subscription: a scheduled Claude Code task follows
-# docs/AGENT_RUN.md, looping `medium agent next` -> write output -> `medium agent submit`.
-# Stories land at the gate: stories/<id>/GATE.md
-# ... do the gate (see GATE.md), publish on Medium ...
-medium gate done <id> --url https://medium.com/@you/...
-medium track                  # confirm via RSS, ingest data/earnings/*.csv
-medium learn                  # turn your rewrites into style rules
-medium lint <id>              # style check; export <id> -> paste-ready HTML; cover <id> -> cover.png
-medium status
+```powershell
+python -m venv .venv; .venv\Scripts\python -m pip install -e ".[dev]"
+.venv\Scripts\meta auth A      # one-time per account; see docs/RESEARCH.md for the Meta app
+.venv\Scripts\pytest
 ```
 
-The scheduled task (Claude desktop app, daily) keeps up to `cadence.max_waiting_at_gate` stories ready for you; it runs while the app is open, or on next launch. Optional: `llm.backend: api` + an API key enables `medium scout/run/learn` and the manual GitHub Actions workflow.
+## Commands
 
-## Layout
+| Command | What |
+|---|---|
+| `meta trends` | today's trend signals |
+| `meta agent next / submit <id> / abandon <id>` | job protocol for the scheduled Claude session (`docs/AGENT_RUN.md`) |
+| `meta queue` | drafts, pending and approved posts with their text and sources |
+| `meta approve <id...>\|all`, `meta reject <id...>` | your gate |
+| `meta publish [--dry-run]` | at most one due post per active account |
+| `meta track` | pull insights for posts from the last 14 days |
+| `meta status` | counts by state |
+| `meta auth / whoami / refresh A\|B` | Threads tokens (refresh before 60 days) |
+
+## Files
 
 | Path | What |
 |---|---|
-| `config/pipeline.yaml` | niches, model + effort per stage, word counts, gate thresholds, cadence, scout weights |
-| `config/voice.md` | your voice and experience; every stage reads it |
-| `config/style.md`, `config/visual.md` | house writing style and visual identity |
-| `config/style-learned.md`, `config/exemplars/` | generated from your published rewrites |
-| `prompts/` | one prompt per stage (`$placeholders`) |
-| `src/medium_engine/` | `cli`, `stages`, `gate`, `track`, `llm`, `rss`, `store`, `config` |
-| `stories/<id>/` | `state.json`, `brief.md`, `draft.md`, `factcheck.md`, `edited.md`, `package/`, `GATE.md` |
-| `data/` | `ideas.jsonl`, `performance.json`, `earnings/` (your stats exports, gitignored) |
-| `docs/` | research, pipeline, policy, roadmap |
+| `config/meta.yaml` | accounts + personas, cadence, approval switch, review threshold, trend feeds |
+| `prompts/` | `system.md` (voice + hard rules), `write.md`, `review.md` |
+| `data/posts.jsonl` | every post with state, sources, review, Threads ids and insights |
+| `docs/POLICY.md` | what the engine must never post, and why |
+| `.env` | app id/secret and per-account tokens (gitignored) |

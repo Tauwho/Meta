@@ -3,23 +3,20 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "medium-engine"
-version = "0.1.0"
-description = "AI-centered Medium writing pipeline with one human gate per story"
+name = "meta-engine"
+version = "0.2.0"
+description = "Trend-driven Threads content engine for Vietnamese audiences, run by a scheduled Claude Code task"
 requires-python = ">=3.10"
 dependencies = [
-    "anthropic>=1.0",
     "pyyaml>=6.0",
     "python-dotenv>=1.0",
-    "pillow>=10.1",
-    "markdown>=3.5",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 
 [project.scripts]
-medium = "medium_engine.cli:main"
+meta = "meta_engine.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

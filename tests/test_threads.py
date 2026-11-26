@@ -1,6 +1,6 @@
 import pytest
 
-from medium_engine.threads import code_from_redirect
+from meta_engine.threads import code_from_redirect
 
 
 def test_code_from_redirect_strips_meta_suffix():

@@ -6,7 +6,4 @@ __pycache__/
 .pytest_cache/
 build/
 dist/
-# raw earnings exports may contain account details
-data/earnings/*.csv
-!data/earnings/example.csv
 jobs/

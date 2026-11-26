@@ -1,0 +1,43 @@
+# Meta engine settings. Every stage reads this; edit by hand, never during an agent run.
+
+accounts:
+  A:
+    handle: goycoon
+    active: true
+    persona: >
+      "Hôm nay mạng nói gì": a fast, witty Vietnamese account that catches what Vietnam is
+      talking about today (viral moments, entertainment, showbiz, sports, tech, money, food,
+      lifestyle, weird news) and turns it into a punchy take people want to reply to.
+      Voice: young, quick, a little cheeky, never mean. Writes like a person, not a newspaper.
+  B:
+    handle: ""
+    active: false     # turn on ~4 weeks after A, with its own persona/niche
+    persona: ""
+
+cadence:
+  queue_target: 6          # keep this many posts ready (pending approval + approved) per account
+  write_batch: 4           # drafts per write job
+  min_gap_minutes: 150     # between two posts on the same account
+  post_hours_vn: [7, 23]   # only publish between these hours, Vietnam time (UTC+7)
+  max_age_hours: 36        # trend posts older than this are expired instead of published
+  max_jobs_per_run: 4
+
+publish:
+  require_approval: true   # true: you run `meta approve`; false: reviewed posts go out on their own
+
+review:
+  min_score: 7             # 1-10; below this the post is rejected
+
+track:
+  days: 14                 # pull insights for posts published in the last N days
+
+trends:
+  google_trends: https://trends.google.com/trending/rss?geo=VN
+  feeds:
+    - https://vnexpress.net/rss/tin-noi-bat.rss
+    - https://vnexpress.net/rss/giai-tri.rss
+    - https://kenh14.vn/rss/home.rss
+    - https://thanhnien.vn/rss/home.rss
+    - https://tuoitre.vn/rss/tin-moi-nhat.rss
+    - https://genk.vn/rss/home.rss
+  per_feed: 8

@@ -1,32 +1,22 @@
-# Compliance guardrails
+# Publishing policy
 
-These rules exist so stories stay paywall-eligible and the account keeps its Partner Program enrollment. The pipeline enforces what it can; the rest is on the human at the gate.
+The engine posts about trending topics to a Vietnamese audience. These rules keep the accounts alive and out of legal trouble. They are enforced in three places: `prompts/system.md` (hard rules the writer and reviewer follow), the review job (fact-check + reject), and code (`posts.py`: 500-character limit, no links in post text, at least one source URL, topic de-duplication, 36-hour expiry).
 
-## What the AI may do (allowed by Medium's AI policy)
+## Why each rule exists
 
-- Research, trend scouting, idea scoring
-- Outlines and briefs
-- First drafts **as scaffolding** for the human to rewrite and extend
-- Fact-checking with cited sources
-- Grammar, spelling, readability and structure edits
-- Titles, subtitles, tags, publication pitch, scheduling, analytics
+| Rule | Reason |
+|---|---|
+| Facts checked against an opened source; sources kept per post | Vietnam fines and can prosecute spreading false information online (Cybersecurity Law 2018, Decree 15/2020 as amended, Decree 147/2024). Trend content is where false claims spread fastest. |
+| No politics, state affairs, sovereignty, religion, ethnicity | Same laws; these are the highest-risk categories, and none of them are needed for reach. |
+| No targeting private people, minors, victims; no appearance mockery | Meta Community Standards (bullying and harassment) and basic decency; the fastest way to get reported. |
+| No medical, legal, investment, gambling, crypto or loan content | Meta regulated-goods and fraud policies; "money tips" accounts get flagged. |
+| Own words only, credit the source in the reply | Copyright, and Threads ranks original commentary above reposted headlines. |
+| Official Threads API only; no automated likes, follows or replies to others; the two accounts never interact | Meta's inauthentic-behaviour policy. Automating engagement or running accounts that boost each other is what gets accounts banned. |
+| Human approval on by default (`publish.require_approval: true`) | Lets you see the quality and the risk level of AI-written Vietnamese before the account posts on its own. Turn it off only after a week or two of clean approvals. |
+| One post per run, 150-minute gap, 07:00-23:00 Vietnam time | Looks human, stays far below the API's 250-posts-per-day limit. |
 
-## What the human must do (the gate)
+## Not allowed, ever
 
-1. **Original contribution.** Fill every `[[HUMAN: ...]]` slot with real experience, opinion or data from your own life/work. Do not ask an AI to fill them.
-2. **Real editing.** Rewrite the draft in your own voice. The gate refuses a story whose final text is too close to the AI draft (see `gate.min_edit_ratio` in `config/pipeline.yaml`). This is a tripwire, not a loophole: the point is that the story is genuinely yours.
-3. **Verify.** Check every claim flagged in `factcheck.md`. Remove anything you cannot stand behind.
-4. **Publish by hand** in the Medium editor, set the paywall, add tags, submit to the target publication.
-5. **Record** the URL with `medium gate done <id> --url <url>`.
-
-## Hard rules
-
-- Never paywall a story that skipped the gate.
-- Never automate logins, posting, clapping, following, or commenting on Medium.
-- Never run multiple accounts or engagement rings.
-- Disclose affiliate links. Disclose AI assistance where it is material (e.g. AI-generated images: credit them).
-- Images: Medium's built-in Unsplash picker, own photos, or AI images credited as such.
-
-## If the rules change
-
-Medium's policy has changed several times. Re-check the AI policy and paywall-eligibility pages monthly (the `scout` stage logs a reminder) and update this file and `docs/RESEARCH.md`.
+- Buying followers or engagement, follow-for-follow, giveaways that require follows.
+- Selling or transferring the account (Instagram/Threads Terms of Use forbid it).
+- Location spoofing (VPN) to make the account look Vietnam-based.

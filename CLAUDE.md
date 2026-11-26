@@ -1,8 +1,9 @@
-# Medium engine: notes for AI agents working in this repo
+# Meta engine: notes for AI agents working in this repo
 
-- Read `docs/POLICY.md` before changing anything that touches what gets published. The human gate is the reason stories stay paywall-eligible; do not add code that fills `[[HUMAN]]` slots, lowers `gate.min_edit_ratio` to bypass it, or automates logins/posting/engagement on Medium.
-- Only public RSS feeds may be fetched from Medium automatically.
-- Story state lives in `stories/<id>/state.json`; stages are in `store.AI_STAGES`. Work is modelled as jobs in `stages.py` (`story_job`, `apply_story`, `next_job`); both backends share them.
-- Scheduled runs follow `docs/AGENT_RUN.md` (agent backend, no API key). API-backend Claude calls go through `llm.run` only (streaming, adaptive thinking, per-stage effort, refusal fallbacks, pause_turn handling).
-- Run `pytest` after changes. Tests never call the API.
+- Threads content pipeline for Vietnamese audiences; see README.md. Scheduled runs follow `docs/AGENT_RUN.md`.
+- Read `docs/POLICY.md` before changing anything that decides what gets published. Do not remove the review stage, the source requirement, or the hard rules in `prompts/system.md`; do not flip `publish.require_approval` unless the user asks.
+- Only the official Threads API publishes. No browser automation of Threads/Instagram, no likes/follows/engagement automation, and the two accounts never interact with each other.
+- Tokens and the app secret live only in `.env`; never print, log or commit them.
+- Post state lives in `data/posts.jsonl` (`posts.py`); agent jobs are `write` and `review` (`agent.py`).
+- Run `pytest` after changes. Tests never call the network.
 - Commits: no AI co-author trailers.
