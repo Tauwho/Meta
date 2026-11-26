@@ -19,7 +19,7 @@ from . import config
 
 GRAPH = "https://graph.threads.net"
 REDIRECT = "https://localhost/"
-SCOPES = "threads_basic,threads_content_publish,threads_manage_replies,threads_read_replies,threads_manage_insights,threads_delete"
+SCOPES = "threads_basic,threads_content_publish,threads_manage_replies,threads_read_replies,threads_manage_insights,threads_delete,threads_keyword_search,threads_location_tagging"
 
 
 def _env_path():
@@ -98,7 +98,8 @@ def _user(slot):
     return uid
 
 
-def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag="", poll=None):
+def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag="", poll=None,
+                 quote_post_id="", location_id=""):
     """Create + publish one text or image post (or a reply). `link` adds a link-preview card
     (the article's own thumbnail and headline) to a text post; `topic_tag` files the post under a
     Threads topic feed; `poll` (2-4 options) adds a poll to a text post. Returns the published media id."""
@@ -113,6 +114,10 @@ def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag
     if poll and not image_url:
         data["poll_attachment"] = json.dumps(dict(zip(("option_a", "option_b", "option_c", "option_d"), poll)),
                                              ensure_ascii=False)
+    if quote_post_id:
+        data["quote_post_id"] = quote_post_id
+    if location_id:
+        data["location_id"] = location_id
     if reply_to:
         data["reply_to_id"] = reply_to
     container = _call(f"{GRAPH}/v1.0/{uid}/threads", data)
@@ -129,6 +134,24 @@ def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag
         sys.exit("Threads container not ready after 60s")
     return _call(f"{GRAPH}/v1.0/{uid}/threads_publish",
                  {"creation_id": container["id"], "access_token": tok})["id"]
+
+
+def search(slot, q, limit=10):
+    """Top public posts for a keyword from the last 24h. Until Meta approves threads_keyword_search
+    this returns only the account's own posts, which callers drop, so quoting stays dormant."""
+    res = _call(f"{GRAPH}/v1.0/keyword_search?" + urllib.parse.urlencode({
+        "q": q, "search_type": "TOP", "since": int(time.time()) - 86400, "limit": limit,
+        "fields": "id,text,username,permalink,timestamp", "access_token": _token(slot)}))
+    return res.get("data", [])
+
+
+def location_id(slot, name):
+    """Threads location id for a place name, or "". Until Meta approves threads_location_tagging the
+    search only knows "Menlo Park", so a result whose name does not match `name` is ignored."""
+    res = _call(f"{GRAPH}/v1.0/location_search?" + urllib.parse.urlencode(
+        {"q": name, "fields": "id,name", "access_token": _token(slot)}))
+    want = name.split(",")[0].strip().casefold()
+    return next((loc["id"] for loc in res.get("data", []) if want in loc.get("name", "").casefold()), "")
 
 
 def delete(slot, media_id):

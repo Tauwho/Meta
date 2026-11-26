@@ -55,6 +55,15 @@ def cmd_reject(a):
     print(f"{len(a.ids)} post(s) -> rejected")
 
 
+def _location(account):
+    """The account's home location id, or "" (not set, not approved yet, or lookup failed)."""
+    name = config.settings()["accounts"][account].get("location")
+    try:
+        return threads.location_id(account, name) if name else ""
+    except SystemExit:
+        return ""
+
+
 def cmd_publish(a):
     all_posts = posts.load()
     posts.expire_stale(all_posts)
@@ -76,9 +85,11 @@ def cmd_publish(a):
                 image_url = p["image_url"] = media.host(png)
             # news without a card: show the article's preview so scrollers see who/what it is about
             link = (p["sources"][0] if p.get("kind") == "news" and not image_url and not p.get("poll")
-                    and p.get("sources") else None)
+                    and not p.get("quote_post_id") and p.get("sources") else None)
             p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url, link=link,
-                                                 topic_tag=p.get("topic_tag", ""), poll=p.get("poll"))
+                                                 topic_tag=p.get("topic_tag", ""), poll=p.get("poll"),
+                                                 quote_post_id=p.get("quote_post_id", ""),
+                                                 location_id=_location(account))
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
             continue

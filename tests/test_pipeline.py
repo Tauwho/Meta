@@ -146,3 +146,26 @@ def test_publish_sends_topic_tag_and_poll(monkeypatch):
     threads.publish_text("A", "hi", topic_tag="AI", poll=["có", "không"])
     assert sent[0]["topic_tag"] == "AI"
     assert json.loads(sent[0]["poll_attachment"]) == {"option_a": "có", "option_b": "không"}
+
+
+def test_threads_quote_candidates_drop_own_posts_and_render_id(repo, monkeypatch):
+    from meta_engine import threads
+    monkeypatch.setattr(threads, "search", lambda slot, q: [
+        {"id": "111", "text": "yêu xa\nkhó ghê", "username": "someone", "permalink": "https://t/1"},
+        {"id": "222", "text": "bài của mình", "username": config.settings()["accounts"]["A"].get("handle", "")},
+    ])
+    monkeypatch.setitem(config.settings()["accounts"]["A"], "search_keywords", ["yêu xa", "crush"])
+    out = trends.threads_posts("A")
+    assert [s["quote_id"] for s in out] == ["111"]  # own post dropped, duplicate across keywords dropped
+    assert "[quote_post_id 111]" in trends.render(out)
+    with pytest.raises(ValueError, match="quote_post_id"):
+        posts.add_drafts("A", {"posts": [draft(quote_post_id="https://t/1")]})
+
+
+def test_location_lookup_ignores_unapproved_menlo_park(monkeypatch):
+    from meta_engine import threads
+    monkeypatch.setattr(threads, "_token", lambda slot: "tok")
+    monkeypatch.setattr(threads, "_call", lambda url, data=None: {"data": [{"id": "9", "name": "Menlo Park, California"}]})
+    assert threads.location_id("A", "Ho Chi Minh City") == ""
+    monkeypatch.setattr(threads, "_call", lambda url, data=None: {"data": [{"id": "7", "name": "Ho Chi Minh City, Vietnam"}]})
+    assert threads.location_id("A", "Ho Chi Minh City") == "7"

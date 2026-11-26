@@ -25,7 +25,7 @@ $performance
 3. For every `news` post, open at least one reputable source with web search/fetch and confirm the facts you use; list the URLs in `sources`. `take` posts may leave `sources` empty.
 4. Write each post the way Vietnamese Threads actually sounds (see your instructions): 1-3 lines, aim 20-200 characters (lists up to 500), lowercase and loose, the persona's pronoun, natural particles, =))) over emoji, no AI tells.
 5. Optional `reply`: one extra fun detail or a follow-up question, same casual voice, max 200 characters; for `news` it may say casually where it was read. Leave it empty for most `take` posts.
-6. Give every post a `topic_tag` and about 1 in 4 a `poll` (see Threads features in your instructions; never a poll and a card on the same post). Give about half the posts a `card` (see Text cards in your instructions): max 140 characters, the screenshot-worthy line; then `text` is the question or reaction around it, not a copy.
+6. Give every post a `topic_tag` and about 1 in 4 a `poll` (see Threads features in your instructions; never a poll and a card on the same post). If the signals include popular `(threads @user)` posts, up to 1 post may quote one with `quote_post_id`. Give about half the posts a `card` (see Text cards in your instructions): max 140 characters, the screenshot-worthy line; then `text` is the question or reaction around it, not a copy.
 7. Before you output, reread each post as a Vietnamese 22-year-old scrolling at midnight: would you stop, reply, repost or save it, and does it sound like a person typed it on a phone? If it sounds translated or like a newspaper, rewrite it.
 
 ## Output
@@ -41,6 +41,7 @@ Only this JSON object:
    "card": "",
    "topic_tag": "the one Threads topic, e.g. Tình yêu or AI",
    "poll": [],
+   "quote_post_id": "",
    "reply": "",
    "sources": []}
 ]}

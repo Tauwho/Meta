@@ -6,7 +6,7 @@ import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 
-from . import config
+from . import config, threads
 
 UA = {"User-Agent": "Mozilla/5.0 (meta-engine trend reader)"}
 
@@ -57,7 +57,26 @@ def collect(account: str) -> list[dict]:
             signals += parse(_fetch(url), name, limit)
         except Exception as e:  # network/XML errors: trends are best-effort input
             print(f"warning: trend feed {name} skipped: {e}", file=sys.stderr)
-    return signals
+    return signals + threads_posts(account)
+
+
+def threads_posts(account: str) -> list[dict]:
+    """Popular Threads posts for the account's search keywords: candidates to quote. Own posts dropped."""
+    acc = config.settings()["accounts"][account]
+    out, seen = [], set()
+    for q in acc.get("search_keywords", []):
+        try:
+            found = threads.search(account, q)
+        except SystemExit as e:  # no token, no permission, rate limit: quoting is optional
+            print(f"warning: threads search {q!r} skipped: {e}", file=sys.stderr)
+            continue
+        for p in found:
+            if p.get("username") == acc.get("handle") or not p.get("text") or p["id"] in seen:
+                continue
+            seen.add(p["id"])
+            out.append({"source": f"threads @{p.get('username', '?')}", "title": " ".join(p["text"].split())[:200],
+                        "link": p.get("permalink", ""), "quote_id": p["id"]})
+    return out
 
 
 def render(signals: list[dict]) -> str:
@@ -65,5 +84,6 @@ def render(signals: list[dict]) -> str:
     for s in signals:
         extra = f" [{s['traffic']} searches]" if s.get("traffic") else ""
         rel = f" | news: {'; '.join(s['related'])}" if s.get("related") else ""
-        lines.append(f"- ({s['source']}) {s['title']}{extra}{rel} {s.get('link', '')}".rstrip())
+        quote = f" [quote_post_id {s['quote_id']}]" if s.get("quote_id") else ""
+        lines.append(f"- ({s['source']}) {s['title']}{extra}{rel}{quote} {s.get('link', '')}".rstrip())
     return "\n".join(lines) or "(no feed reachable; find today's Vietnamese trends with web search)"

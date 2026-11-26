@@ -121,6 +121,9 @@ def add_drafts(account: str, data: dict) -> list[str]:
         poll = check_poll(it.get("poll"), f"posts[{i}].poll")
         if poll and card_text:
             raise ValueError(f"posts[{i}] has a poll and a card; Threads polls are text-only")
+        quote_id = str(it.get("quote_post_id") or "").strip()
+        if quote_id and not quote_id.isdigit():
+            raise ValueError(f"posts[{i}].quote_post_id must be a Threads post id from the signals")
         kind = it.get("kind", "news")
         if kind not in ("take", "news"):
             raise ValueError(f"posts[{i}].kind must be take|news")
@@ -135,7 +138,7 @@ def add_drafts(account: str, data: dict) -> list[str]:
             "id": pid, "account": account, "state": "draft", "created": iso(stamp),
             "topic": topic, "kind": kind, "category": str(it.get("category", "")), "why_now": str(it.get("why_now", "")),
             "text": text, "card": card_text, "reply": reply, "sources": sources,
-            "topic_tag": topic_tag, "poll": poll,
+            "topic_tag": topic_tag, "poll": poll, "quote_post_id": quote_id,
         })
         added.append(pid)
     save(posts)
