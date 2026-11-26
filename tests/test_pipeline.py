@@ -116,3 +116,33 @@ def test_write_job_goes_to_emptiest_queue(repo):
     posts.add_drafts("A", {"posts": [draft()]})
     posts.apply_reviews({"reviews": [{"id": posts.load()[0]["id"], "verdict": "pass", "score": 9}]})
     assert agent.plan()["account"] == "B"
+
+
+def test_topic_tag_and_poll_are_validated_and_stored(repo):
+    with pytest.raises(ValueError, match="topic_tag"):
+        posts.add_drafts("A", {"posts": [draft(topic_tag="a.b")]})
+    with pytest.raises(ValueError, match="poll"):
+        posts.add_drafts("A", {"posts": [draft(poll=["chỉ một"])]})
+    with pytest.raises(ValueError, match="poll"):
+        posts.add_drafts("A", {"posts": [draft(poll=["x" * 26, "y"])]})
+    with pytest.raises(ValueError, match="text-only"):
+        posts.add_drafts("A", {"posts": [draft(poll=["a", "b"], card="câu hay")]})
+    (pid,) = posts.add_drafts("A", {"posts": [draft(topic_tag="#Tình yêu", poll=["team nhắn trước", "team đợi"])]})
+    p = posts.find(posts.load(), pid)
+    assert p["topic_tag"] == "Tình yêu" and p["poll"] == ["team nhắn trước", "team đợi"]
+
+
+def test_publish_sends_topic_tag_and_poll(monkeypatch):
+    from meta_engine import threads
+    sent = []
+
+    def fake_call(url, data=None):
+        sent.append(data)
+        return {"id": "c1", "status": "FINISHED"}
+
+    monkeypatch.setattr(threads, "_call", fake_call)
+    monkeypatch.setattr(threads, "_token", lambda slot: "tok")
+    monkeypatch.setattr(threads, "_user", lambda slot: "uid")
+    threads.publish_text("A", "hi", topic_tag="AI", poll=["có", "không"])
+    assert sent[0]["topic_tag"] == "AI"
+    assert json.loads(sent[0]["poll_attachment"]) == {"option_a": "có", "option_b": "không"}

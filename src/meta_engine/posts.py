@@ -14,6 +14,8 @@ from . import config
 
 MAX_CHARS = 500  # Threads hard limit per post
 CARD_CHARS = 160  # beyond this the card text gets too small to read in the feed
+TAG_CHARS = 50  # Threads topic_tag: 1-50 chars, no "." or "&"
+POLL_CHARS = 25  # Threads poll option: 1-25 chars, 2-4 options
 STATES = ["draft", "pending", "approved", "rejected", "published", "expired", "deleted"]
 
 
@@ -67,6 +69,24 @@ def check_text(text: str, field: str = "text") -> str:
     return text
 
 
+def check_tag(tag, field: str = "topic_tag") -> str:
+    tag = str(tag or "").strip().lstrip("#").strip()
+    if len(tag) > TAG_CHARS or "." in tag or "&" in tag:
+        raise ValueError(f"{field} must be 1-{TAG_CHARS} chars without '.' or '&'")
+    return tag
+
+
+def check_poll(poll, field: str = "poll") -> list[str]:
+    if not poll:
+        return []
+    if not isinstance(poll, list) or not 2 <= len(poll) <= 4:
+        raise ValueError(f"{field} must be a list of 2-4 options")
+    opts = [str(o).strip() for o in poll]
+    if any(not o or len(o) > POLL_CHARS for o in opts):
+        raise ValueError(f"{field} options must be 1-{POLL_CHARS} chars")
+    return opts
+
+
 def _norm(topic: str) -> str:
     return re.sub(r"\s+", " ", topic.casefold()).strip()
 
@@ -97,6 +117,10 @@ def add_drafts(account: str, data: dict) -> list[str]:
         card_text = str(it.get("card") or "").strip()
         if len(card_text) > CARD_CHARS:
             raise ValueError(f"posts[{i}].card is {len(card_text)} chars; max {CARD_CHARS}")
+        topic_tag = check_tag(it.get("topic_tag"), f"posts[{i}].topic_tag")
+        poll = check_poll(it.get("poll"), f"posts[{i}].poll")
+        if poll and card_text:
+            raise ValueError(f"posts[{i}] has a poll and a card; Threads polls are text-only")
         kind = it.get("kind", "news")
         if kind not in ("take", "news"):
             raise ValueError(f"posts[{i}].kind must be take|news")
@@ -111,6 +135,7 @@ def add_drafts(account: str, data: dict) -> list[str]:
             "id": pid, "account": account, "state": "draft", "created": iso(stamp),
             "topic": topic, "kind": kind, "category": str(it.get("category", "")), "why_now": str(it.get("why_now", "")),
             "text": text, "card": card_text, "reply": reply, "sources": sources,
+            "topic_tag": topic_tag, "poll": poll,
         })
         added.append(pid)
     save(posts)
@@ -142,6 +167,12 @@ def apply_reviews(data: dict) -> dict:
                 p["reply"] = check_text(r["reply"], f"reviews[{i}].reply")
             if "card" in r:
                 p["card"] = str(r.get("card") or "").strip()[:CARD_CHARS]
+            if "topic_tag" in r:
+                p["topic_tag"] = check_tag(r["topic_tag"], f"reviews[{i}].topic_tag")
+            if "poll" in r:
+                p["poll"] = check_poll(r["poll"], f"reviews[{i}].poll")
+            if p.get("poll") and p.get("card"):
+                p["poll"] = []  # polls are text-only; the card wins
         p["review"] = {"verdict": verdict, "score": score, "reason": str(r.get("reason", ""))}
         p["state"] = "rejected" if verdict == "reject" or score < min_score else ok_state
         counts[p["state"]] = counts.get(p["state"], 0) + 1

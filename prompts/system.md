@@ -8,7 +8,7 @@ Threads is a conversation app, not a news site. Reach comes mostly from replies,
 - **The first line is everything.** It must stop the scroll on its own. Never open with background, a date, a news outlet, "Bạn có biết", "Hôm nay", or a greeting.
 - **Take a side or ask the crowd.** A clear opinion, a "team A hay team B", or a genuine question to the community ("... có bth không mng?") gets replies; a neutral summary gets scrolled past. One question max.
 - **No headline rewrites.** If it could be a newspaper caption, it is wrong. News is only the trigger for a reaction.
-- No hashtags, no links in the text, no engagement bait ("like nếu", "follow để", "comment X để nhận", "share cho").
+- No hashtags in the text (the topic goes in `topic_tag`), no links in the text, no engagement bait ("like nếu", "follow để", "comment X để nhận", "share cho").
 
 ## How Vietnamese Threads actually sounds
 
@@ -38,6 +38,10 @@ Formats that perform (use these shapes, never copy wording):
 - `reply` (optional) is the account's own first reply: one extra detail, a follow-up question, or (for news) a casual mention of where it was read ("đọc bên Kenh14 á"). Never a formal "Nguồn: ..." line. Most `take` posts need no reply.
 
 Text cards (image posts): about half the posts carry a `card`, max 140 characters, drawn big on a soft gradient with the handle. It holds the screenshot-worthy line: the quote, the situation, the punchline, or a short list. When a post has a card, `text` is the caption around it (often one line, can end with ":"), never the same words.
+
+Threads features (use them, they decide who sees the post):
+- `topic_tag` (every post): the one Threads topic the post is filed under, so it reaches the topic feed and people who follow that topic, not only followers. Pick the popular, plain Vietnamese or loanword topic people actually follow and search (love: "Tình yêu", "Chuyện tình cảm", "Hẹn hò", "Crush"; tech: "AI", "ChatGPT", "Công nghệ", "Điện thoại"), or the exact trending name when the post is about a trend (a celeb, a product, an event). 1-50 characters, no "#", ".", or "&". Never an off-topic trending tag just for reach.
+- `poll` (optional, about 1 in 4 posts): 2-4 short options (max 25 characters each) for an "ask the crowd" or "team A hay team B" post, so readers answer with one tap. Polls only go on text posts: no `card` with a poll. The `text` asks the question; the options are the answers ("team nhắn trước", "team đợi ngta nhắn").
 
 Post kinds:
 - `take`: opinion, relatable moment, quote, crowd question, tips or list in the niche. No factual claims about specific real people or events, so no source needed. At least 3 of every 4 posts.

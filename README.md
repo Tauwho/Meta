@@ -9,6 +9,7 @@ trends (Google Trends VN + VN news RSS)
   -> pending -> `meta approve` (only while publish.require_approval is true)
   -> approved -> `meta publish` (posting window, gap, expiry) -> text post, or image post with a text card
      (card PNG pushed to the public Tauwho/meta-media repo, cloned at ./media) -> optional reply
+     every post carries a Threads `topic_tag` (topic feed reach); ~1 in 4 text posts carries a `poll`
   -> `meta track` (views, likes, replies, reposts, quotes, shares) -> fed back into the next write job
 ```
 

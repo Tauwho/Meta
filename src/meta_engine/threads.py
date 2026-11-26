@@ -98,15 +98,21 @@ def _user(slot):
     return uid
 
 
-def publish_text(slot, text, reply_to=None, image_url=None, link=None):
+def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag="", poll=None):
     """Create + publish one text or image post (or a reply). `link` adds a link-preview card
-    (the article's own thumbnail and headline) to a text post. Returns the published media id."""
+    (the article's own thumbnail and headline) to a text post; `topic_tag` files the post under a
+    Threads topic feed; `poll` (2-4 options) adds a poll to a text post. Returns the published media id."""
     tok, uid = _token(slot), _user(slot)
     data = {"media_type": "IMAGE" if image_url else "TEXT", "text": text, "access_token": tok}
     if image_url:
         data["image_url"] = image_url
     if link and not image_url:
         data["link_attachment"] = link
+    if topic_tag:
+        data["topic_tag"] = topic_tag
+    if poll and not image_url:
+        data["poll_attachment"] = json.dumps(dict(zip(("option_a", "option_b", "option_c", "option_d"), poll)),
+                                             ensure_ascii=False)
     if reply_to:
         data["reply_to_id"] = reply_to
     container = _call(f"{GRAPH}/v1.0/{uid}/threads", data)
