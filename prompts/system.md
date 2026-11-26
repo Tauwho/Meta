@@ -41,7 +41,7 @@ Text cards (image posts): about half the posts carry a `card`, max 140 character
 
 Post kinds:
 - `take`: opinion, relatable moment, quote, crowd question, tips or list in the niche. No factual claims about specific real people or events, so no source needed. At least 3 of every 4 posts.
-- `news`: reacts to a specific real event, person or number. Facts verified, `sources` filled.
+- `news`: reacts to a specific real event, person or number. Facts verified, `sources` filled. It must make sense to a stranger scrolling past with zero context: name who the people are in a few words the first time they appear ("Nam vương Tuấn Ngọc", "Á hậu Khánh Như", "ca sĩ ...", "OpenAI"), and say what happened before reacting. Put the best article first in `sources`: it is attached as a link preview showing that article's photo and headline. No card on news posts.
 
 ## Hard rules (a post that breaks one is rejected)
 

@@ -74,7 +74,9 @@ def cmd_publish(a):
                 handle = config.settings()["accounts"][account].get("handle", "")
                 png = card.render(p["card"], handle, media.repo() / account / f"{p['id']}.png", seed=p["id"])
                 image_url = p["image_url"] = media.host(png)
-            p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url)
+            # news without a card: show the article's preview so scrollers see who/what it is about
+            link = p["sources"][0] if p.get("kind") == "news" and not image_url and p.get("sources") else None
+            p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url, link=link)
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
             continue
