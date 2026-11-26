@@ -132,8 +132,16 @@ def publish_text(slot, text, reply_to=None, image_url=None, link=None, topic_tag
         time.sleep(5)
     else:
         sys.exit("Threads container not ready after 60s")
-    return _call(f"{GRAPH}/v1.0/{uid}/threads_publish",
-                 {"creation_id": container["id"], "access_token": tok})["id"]
+    # Meta sometimes 404s a FINISHED container for a few seconds ("requested resource does not exist");
+    # that error means nothing was published, so retrying cannot double-post.
+    for attempt in range(4):
+        try:
+            return _call(f"{GRAPH}/v1.0/{uid}/threads_publish",
+                         {"creation_id": container["id"], "access_token": tok})["id"]
+        except SystemExit as e:
+            if "does not exist" not in str(e) or attempt == 3:
+                raise
+            time.sleep(10)
 
 
 def search(slot, q, limit=10):

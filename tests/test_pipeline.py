@@ -169,3 +169,22 @@ def test_location_lookup_ignores_unapproved_menlo_park(monkeypatch):
     assert threads.location_id("A", "Ho Chi Minh City") == ""
     monkeypatch.setattr(threads, "_call", lambda url, data=None: {"data": [{"id": "7", "name": "Ho Chi Minh City, Vietnam"}]})
     assert threads.location_id("A", "Ho Chi Minh City") == "7"
+
+
+def test_publish_retries_transient_missing_container(monkeypatch):
+    from meta_engine import threads
+    calls = {"publish": 0}
+
+    def fake_call(url, data=None):
+        if url.endswith("threads_publish"):
+            calls["publish"] += 1
+            if calls["publish"] == 1:
+                raise SystemExit("Threads API error: The requested resource does not exist")
+            return {"id": "m1"}
+        return {"id": "c1", "status": "FINISHED"}
+
+    monkeypatch.setattr(threads, "_call", fake_call)
+    monkeypatch.setattr(threads, "_token", lambda slot: "tok")
+    monkeypatch.setattr(threads, "_user", lambda slot: "uid")
+    monkeypatch.setattr(threads.time, "sleep", lambda s: None)
+    assert threads.publish_text("A", "hi") == "m1" and calls["publish"] == 2
