@@ -19,7 +19,7 @@ from . import config
 
 GRAPH = "https://graph.threads.net"
 REDIRECT = "https://localhost/"
-SCOPES = "threads_basic,threads_content_publish,threads_manage_replies,threads_read_replies,threads_manage_insights"
+SCOPES = "threads_basic,threads_content_publish,threads_manage_replies,threads_read_replies,threads_manage_insights,threads_delete"
 
 
 def _env_path():
@@ -118,6 +118,18 @@ def publish_text(slot, text, reply_to=None):
         sys.exit("Threads container not ready after 60s")
     return _call(f"{GRAPH}/v1.0/{uid}/threads_publish",
                  {"creation_id": container["id"], "access_token": tok})["id"]
+
+
+def delete(slot, media_id):
+    """Permanently delete one of the account's posts or replies (needs threads_delete)."""
+    req = urllib.request.Request(f"{GRAPH}/v1.0/{media_id}?" + urllib.parse.urlencode(
+        {"access_token": _token(slot)}), method="DELETE")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.load(r).get("success", False)
+    except urllib.error.HTTPError as e:
+        msg = json.loads(e.read() or b"{}").get("error", {}).get("message", str(e))
+        sys.exit(f"Threads API error: {msg}")
 
 
 def permalink(slot, media_id):

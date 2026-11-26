@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from . import config
 
 MAX_CHARS = 500  # Threads hard limit per post
-STATES = ["draft", "pending", "approved", "rejected", "published", "expired"]
+STATES = ["draft", "pending", "approved", "rejected", "published", "expired", "deleted"]
 
 
 def _path():

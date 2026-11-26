@@ -83,6 +83,21 @@ def cmd_publish(a):
     posts.save(all_posts)
 
 
+def cmd_delete(a):
+    """Delete published posts (and their source reply) from Threads; keeps the record as state 'deleted'."""
+    all_posts = posts.load()
+    for pid in a.ids:
+        p = posts.find(all_posts, pid)
+        if p["state"] != "published":
+            sys.exit(f"{pid} is {p['state']}, not published")
+        if p.get("reply_id"):
+            threads.delete(p["account"], p["reply_id"])
+        threads.delete(p["account"], p["media_id"])
+        p["state"], p["deleted_at"] = "deleted", posts.iso(config.now())
+        posts.save(all_posts)
+        print(f"deleted {pid} {p.get('permalink', '')}")
+
+
 def cmd_track(a):
     all_posts = posts.load()
     cutoff = config.now() - timedelta(days=config.settings()["track"]["days"])
@@ -132,6 +147,9 @@ def main(argv=None):
     pb.add_argument("--dry-run", action="store_true")
     pb.add_argument("--now", action="store_true", help="skip the min-gap check (window still applies)")
     pb.set_defaults(fn=cmd_publish)
+    dl = sub.add_parser("delete", help="permanently delete published posts (and their reply) from Threads")
+    dl.add_argument("ids", nargs="+")
+    dl.set_defaults(fn=cmd_delete)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)
     tr = sub.add_parser("trends", help="print today's trend signals for an account")
