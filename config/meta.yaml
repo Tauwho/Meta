@@ -17,13 +17,13 @@ accounts:
 cadence:
   queue_target: 6          # keep this many posts ready (pending approval + approved) per account
   write_batch: 4           # drafts per write job
-  min_gap_minutes: 150     # between two posts on the same account
+  min_gap_minutes: 120     # between two posts on the same account (runs are 3-4 h apart)
   post_hours_vn: [7, 23]   # only publish between these hours, Vietnam time (UTC+7)
   max_age_hours: 36        # trend posts older than this are expired instead of published
   max_jobs_per_run: 4
 
 publish:
-  require_approval: true   # true: you run `meta approve`; false: reviewed posts go out on their own
+  require_approval: false   # true: you run `meta approve`; false: reviewed posts go out on their own
 
 review:
   min_score: 7             # 1-10; below this the post is rejected
