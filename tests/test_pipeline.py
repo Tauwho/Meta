@@ -16,6 +16,7 @@ def repo(tmp_path, monkeypatch):
     shutil.copytree(REPO / "prompts", tmp_path / "prompts")
     monkeypatch.setenv("META_ROOT", str(tmp_path))
     config.settings.cache_clear()
+    config.settings()["publish"]["require_approval"] = True  # tests pin the gate on; real config may differ
     monkeypatch.setattr(trends, "collect", lambda: [{"source": "t", "title": "Hoa hậu Hoàn vũ 2026"}])
     yield tmp_path
     config.settings.cache_clear()
@@ -84,3 +85,9 @@ def test_agent_round_trip_write_then_review(repo):
     pid = posts.load()[0]["id"]
     Path(r["output_file"]).write_text(json.dumps({"reviews": [{"id": pid, "verdict": "pass", "score": 8}]}))
     assert agent.submit(r["job_id"]) == "review A: 1 pending"
+
+
+def test_review_skips_gate_when_approval_off(repo):
+    config.settings()["publish"]["require_approval"] = False
+    (a,) = posts.add_drafts("A", {"posts": [draft()]})
+    assert posts.apply_reviews({"reviews": [{"id": a, "verdict": "pass", "score": 8}]}) == {"approved": 1}
