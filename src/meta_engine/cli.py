@@ -92,6 +92,13 @@ def cmd_publish(a):
                                                  location_id=_location(account))
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
+            # a post the API keeps refusing must not block the account's queue every hour
+            p["publish_errors"] = p.get("publish_errors", 0) + 1
+            p["last_error"] = str(e)
+            if p["publish_errors"] >= 2:
+                p["state"] = "rejected"
+                p["review"] = {**p.get("review", {}), "reason": f"publish failed twice: {e}"}
+            posts.save(all_posts)
             continue
         p["state"], p["published_at"] = "published", posts.iso(at)
         posts.save(all_posts)  # saved before the reply so a reply failure never re-posts the main text

@@ -124,7 +124,7 @@ def test_topic_tag_and_poll_are_validated_and_stored(repo):
     with pytest.raises(ValueError, match="poll"):
         posts.add_drafts("A", {"posts": [draft(poll=["chỉ một"])]})
     with pytest.raises(ValueError, match="poll"):
-        posts.add_drafts("A", {"posts": [draft(poll=["x" * 26, "y"])]})
+        posts.add_drafts("A", {"posts": [draft(poll=["yêu xa, gọi mỗi tối", "y"])]})
     with pytest.raises(ValueError, match="text-only"):
         posts.add_drafts("A", {"posts": [draft(poll=["a", "b"], card="câu hay")]})
     (pid,) = posts.add_drafts("A", {"posts": [draft(topic_tag="#Tình yêu", poll=["team nhắn trước", "team đợi"])]})

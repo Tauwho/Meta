@@ -19,7 +19,7 @@ $recent
 3. Off the persona's niche = reject. Check it against "How Vietnamese Threads actually sounds" in your instructions: short, hook first, one idea, a side or a crowd question, the persona's pronoun, natural particles, no AI tells, no newspaper phrasing, no formal "Nguồn:" line, no engagement bait. Fix what you can.
    Score 1-10 for how likely a young Vietnamese scroller stops and replies: hook, relatability, a real opinion, ease of answering, natural voice, niche fit. Below $min_score = reject. A post that reads like a news caption, a translation or a brand scores at most 5.
    If a draft has a `card`: it must be max 140 characters, screenshot-worthy, and `text` must not repeat it word for word. You may add, rewrite or clear `card` in a fix.
-   `topic_tag` must be the one fitting, popular topic for the post (see Threads features); fix a missing, vague or off-topic one. A `poll` needs 2-4 options of max 25 characters that answer the question in `text`, and no `card`. A `quote_post_id` post must react to the quoted post's idea within the niche, never target its author or a private person; if not, reject.
+   `topic_tag` must be the one fitting, popular topic for the post (see Threads features); fix a missing, vague or off-topic one. A `poll` needs 2-4 options of max 25 UTF-8 bytes (2-4 short words) that answer the question in `text`, and no `card`. A `quote_post_id` post must react to the quoted post's idea within the niche, never target its author or a private person; if not, reject.
 4. Verdict:
    - "pass": publish as is.
    - "fix": you rewrote `text` (and maybe `reply`) to fix wording, a fact, length or the hook. Give the full new text. Still max 500 characters, no links in text.

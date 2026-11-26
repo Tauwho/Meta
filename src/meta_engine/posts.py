@@ -15,7 +15,7 @@ from . import config
 MAX_CHARS = 500  # Threads hard limit per post
 CARD_CHARS = 160  # beyond this the card text gets too small to read in the feed
 TAG_CHARS = 50  # Threads topic_tag: 1-50 chars, no "." or "&"
-POLL_CHARS = 25  # Threads poll option: 1-25 chars, 2-4 options
+POLL_BYTES = 25  # Threads poll option: 1-25 UTF-8 bytes (Vietnamese tone marks take 2-3 each), 2-4 options
 STATES = ["draft", "pending", "approved", "rejected", "published", "expired", "deleted"]
 
 
@@ -82,8 +82,9 @@ def check_poll(poll, field: str = "poll") -> list[str]:
     if not isinstance(poll, list) or not 2 <= len(poll) <= 4:
         raise ValueError(f"{field} must be a list of 2-4 options")
     opts = [str(o).strip() for o in poll]
-    if any(not o or len(o) > POLL_CHARS for o in opts):
-        raise ValueError(f"{field} options must be 1-{POLL_CHARS} chars")
+    for o in opts:
+        if not o or len(o.encode()) > POLL_BYTES:
+            raise ValueError(f"{field} option {o!r} is {len(o.encode())} bytes; Threads allows 1-{POLL_BYTES} UTF-8 bytes")
     return opts
 
 
