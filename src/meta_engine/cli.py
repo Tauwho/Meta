@@ -60,7 +60,7 @@ def cmd_publish(a):
     posts.expire_stale(all_posts)
     at = config.now()
     for account in config.active_accounts():
-        p = posts.due(all_posts, account, at)
+        p = posts.due(all_posts, account, at, ignore_gap=a.now)
         if not p:
             print(f"{account}: nothing due (window, gap or empty queue)")
             continue
@@ -130,6 +130,7 @@ def main(argv=None):
     rj.set_defaults(fn=cmd_reject)
     pb = sub.add_parser("publish", help="publish at most one due post per active account")
     pb.add_argument("--dry-run", action="store_true")
+    pb.add_argument("--now", action="store_true", help="skip the min-gap check (window still applies)")
     pb.set_defaults(fn=cmd_publish)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)

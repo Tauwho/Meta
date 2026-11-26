@@ -73,6 +73,7 @@ def test_due_respects_window_gap_and_order(repo):
     ps.append({"id": "0", "account": "A", "state": "published", "created": "x",
                "published_at": posts.iso(at - timedelta(minutes=30))})
     assert posts.due(ps, "A", at) is None
+    assert posts.due(ps, "A", at, ignore_gap=True)["id"] == "1"
 
 
 def test_agent_round_trip_write_then_review(repo):
