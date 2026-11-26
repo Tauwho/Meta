@@ -21,9 +21,9 @@ The engine posts about trending topics to a Vietnamese audience. These rules kee
 - Selling or transferring the account (Instagram/Threads Terms of Use forbid it).
 - Location spoofing (VPN) to make the account look Vietnam-based.
 
-## Account warm-up (lesson from 2026-11-26)
+## Account warm-up
 
-@goycoon was suspended on the day of its first two API posts (appeal pending). Meta did not give a reason; a likely trigger is an account with little history that went straight to automated publishing. Before automating any account (A after reinstatement, B at creation):
+Account B (@comtumb) was suspended on 2026-11-26 before it was ever connected to the API (appeal pending), so new accounts get flagged even without automation. Before automating any new account:
 
 1. Use it by hand for 1-2 weeks: complete the profile, follow and like real accounts in the niche, reply to a few posts, post 3-5 times manually.
 2. Then automate at most 2-3 posts a day for the first month; raise slowly only while nothing gets flagged.
