@@ -8,6 +8,7 @@ Tokens and the app secret live only in .env; nothing here prints them.
 """
 import json
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -104,6 +105,17 @@ def publish_text(slot, text, reply_to=None):
     if reply_to:
         data["reply_to_id"] = reply_to
     container = _call(f"{GRAPH}/v1.0/{uid}/threads", data)
+    # Publishing before the container is FINISHED fails with "requested resource does not exist".
+    for _ in range(12):
+        status = _call(f"{GRAPH}/v1.0/{container['id']}?" + urllib.parse.urlencode(
+            {"fields": "status,error_message", "access_token": tok}))
+        if status.get("status") == "FINISHED":
+            break
+        if status.get("status") in ("ERROR", "EXPIRED"):
+            sys.exit(f"Threads container {status.get('status')}: {status.get('error_message', '')}")
+        time.sleep(5)
+    else:
+        sys.exit("Threads container not ready after 60s")
     return _call(f"{GRAPH}/v1.0/{uid}/threads_publish",
                  {"creation_id": container["id"], "access_token": tok})["id"]
 
