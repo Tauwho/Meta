@@ -17,7 +17,7 @@ def repo(tmp_path, monkeypatch):
     monkeypatch.setenv("META_ROOT", str(tmp_path))
     config.settings.cache_clear()
     config.settings()["publish"]["require_approval"] = True  # tests pin the gate on; real config may differ
-    monkeypatch.setattr(trends, "collect", lambda: [{"source": "t", "title": "Hoa hậu Hoàn vũ 2026"}])
+    monkeypatch.setattr(trends, "collect", lambda account: [{"source": "t", "title": "Hoa hậu Hoàn vũ 2026"}])
     yield tmp_path
     config.settings.cache_clear()
 

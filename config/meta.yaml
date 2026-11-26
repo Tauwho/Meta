@@ -5,14 +5,33 @@ accounts:
     handle: goycoon
     active: true
     persona: >
-      "Hôm nay mạng nói gì": a fast, witty Vietnamese account that catches what Vietnam is
-      talking about today (viral moments, entertainment, showbiz, sports, tech, money, food,
-      lifestyle, weird news) and turns it into a punchy take people want to reply to.
-      Voice: young, quick, a little cheeky, never mean. Writes like a person, not a newspaper.
+      Love and relationships. A warm, witty Vietnamese account about yêu đương: dating,
+      crushes, couples, breakups, marriage, situationships, red/green flags, love languages,
+      and the celebrity couples, viral love stories and relationship debates Vietnam is
+      talking about today. Every post finds the love angle in a trend and asks a question
+      anyone can answer from their own heart ("bạn sẽ làm gì?", "team nào?").
+      Voice: young, relatable, a little cheeky, kind; teases situations, never people.
+      Not about: cheating exposés of private people, sexual content, abuse or tragedy.
+    feeds:
+      - https://dantri.com.vn/rss/tinh-yeu-gioi-tinh.rss
+      - https://kenh14.vn/rss/doi-song.rss
+      - https://kenh14.vn/rss/star.rss
+      - https://vnexpress.net/rss/doi-song.rss
+      - https://vnexpress.net/rss/giai-tri.rss
   B:
     handle: ""
-    active: false     # turn on ~4 weeks after A, with its own persona/niche
-    persona: ""
+    active: false     # turn on ~4 weeks after A (late Dec 2026): Threads Tester + `meta auth B`
+    persona: >
+      Tech and AI. A sharp Vietnamese account that explains today's tech and AI news in plain
+      words: new AI models and tools, phones and gadgets, big-tech moves, AI in daily life and
+      work, scams and safety tips. Every post says what happened, why a normal Vietnamese
+      person should care, and asks for their take. Voice: curious, clear, a little nerdy,
+      never hype; no investment calls on tech stocks or crypto.
+    feeds:
+      - https://vnexpress.net/rss/so-hoa.rss
+      - https://genk.vn/rss/ai.rss
+      - https://genk.vn/rss/home.rss
+      - https://tinhte.vn/rss
 
 cadence:
   queue_target: 6          # keep this many posts ready (pending approval + approved) per account
@@ -33,11 +52,7 @@ track:
 
 trends:
   google_trends: https://trends.google.com/trending/rss?geo=VN
-  feeds:
+  feeds:                   # shared by every account; each account adds its own `feeds`
     - https://vnexpress.net/rss/tin-noi-bat.rss
-    - https://vnexpress.net/rss/giai-tri.rss
     - https://kenh14.vn/rss/home.rss
-    - https://thanhnien.vn/rss/home.rss
-    - https://tuoitre.vn/rss/tin-moi-nhat.rss
-    - https://genk.vn/rss/home.rss
   per_feed: 8

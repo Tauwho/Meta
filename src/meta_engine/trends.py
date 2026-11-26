@@ -45,11 +45,12 @@ def _fetch(url: str) -> bytes:
         return r.read()
 
 
-def collect() -> list[dict]:
-    """All signals; a dead feed is skipped with a warning, never fatal."""
+def collect(account: str) -> list[dict]:
+    """Shared signals plus the account's niche feeds; a dead feed is skipped with a warning, never fatal."""
     cfg = config.settings()["trends"]
+    feeds = cfg["feeds"] + config.settings()["accounts"][account].get("feeds", [])
     sources = [("google_trends_vn", cfg["google_trends"], 20)]
-    sources += [(u.split("//")[1].split("/")[0], u, cfg.get("per_feed", 8)) for u in cfg["feeds"]]
+    sources += [(u.split("//")[1].split(".rss")[0], u, cfg.get("per_feed", 8)) for u in feeds]
     signals = []
     for name, url, limit in sources:
         try:

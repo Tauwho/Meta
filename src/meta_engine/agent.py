@@ -68,7 +68,7 @@ def plan() -> dict | None:
         return {"stage": "write", "account": account, "web": True, "prompt": config.prompt(
             "write", account=account, handle=acc.get("handle", ""), persona=acc["persona"], n=n,
             now_vn=config.now().astimezone(config.VN).strftime("%A %d %B %Y, %H:%M"),
-            signals=trends.render(trends.collect()), recent=_recent(all_posts, account),
+            signals=trends.render(trends.collect(account)), recent=_recent(all_posts, account),
             performance=_performance(all_posts, account))}
     return None
 

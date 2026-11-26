@@ -105,7 +105,7 @@ def cmd_status(a):
 
 
 def cmd_trends(a):
-    print(trends.render(trends.collect()))
+    print(trends.render(trends.collect(a.slot)))
 
 
 def main(argv=None):
@@ -134,7 +134,9 @@ def main(argv=None):
     pb.set_defaults(fn=cmd_publish)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)
-    sub.add_parser("trends", help="print today's trend signals").set_defaults(fn=cmd_trends)
+    tr = sub.add_parser("trends", help="print today's trend signals for an account")
+    tr.add_argument("slot", type=str.upper, choices=["A", "B"], nargs="?", default="A")
+    tr.set_defaults(fn=cmd_trends)
     a = p.parse_args(argv)
     a.fn(a)
 
