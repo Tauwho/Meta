@@ -18,6 +18,7 @@ def repo(tmp_path, monkeypatch):
     config.settings.cache_clear()
     config.settings()["publish"]["require_approval"] = True  # tests pin these; real config may differ
     config.settings()["accounts"]["A"]["active"] = True
+    config.settings()["cadence"].update(post_hours_vn=[7, 23], min_gap_minutes=120)
     monkeypatch.setattr(trends, "collect", lambda account: [{"source": "t", "title": "Hoa hậu Hoàn vũ 2026"}])
     yield tmp_path
     config.settings.cache_clear()
