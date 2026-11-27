@@ -36,8 +36,10 @@ accounts:
       practical tips, useful lists, ask the crowd.
       Voice: curious, clear, a little nerdy, never hype; no investment calls on tech stocks or crypto.
       Speaks as "mình", calls readers "ae", "mng", "mấy bạn"; neutral casual (nha, á, nè).
-      Skip stories whose core is politics, government, elections, war or geopolitics, even when tech
-      is involved. Never sells accounts, keys or "prompt packs".
+      International politics, wars and geopolitics are in scope (owner choice 2026-11-27): chip
+      bans, tech sanctions, AI and elections, wars, world leaders' tech moves. Facts from the sources
+      only, both sides named fairly, no gore. Vietnam's own politics and sovereignty stay out (hard rule 2).
+      Never sells accounts, keys or "prompt packs".
     location: Ho Chi Minh City
     search_keywords: [AI, ChatGPT, Gemini, điện thoại]
     shared_feeds: false   # global news only: no Google Trends VN or shared Vietnamese feeds (2026-11-27 owner choice)

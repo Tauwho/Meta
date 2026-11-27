@@ -7,7 +7,7 @@ The engine posts about trending topics to a Vietnamese audience. These rules kee
 | Rule | Reason |
 |---|---|
 | `news` posts: facts checked against an opened source, sources kept per post; `take` posts state no specific facts | Vietnam fines and can prosecute spreading false information online (Cybersecurity Law 2018, Decree 15/2020 as amended, Decree 147/2024). Trend content is where false claims spread fastest. |
-| No politics, state affairs, sovereignty, religion, ethnicity | Same laws; these are the highest-risk categories, and none of them are needed for reach. |
+| No politics, state affairs, sovereignty, religion, ethnicity. Exception (owner choice 2026-11-27): account B may cover international politics, wars and geopolitics, factually; never Vietnam's own politics, state or sovereignty | Same laws; these are the highest-risk categories. Foreign politics carries less risk than Vietnamese state affairs, but is still judged by Vietnamese law. |
 | No targeting private people, minors, victims; no appearance mockery | Meta Community Standards (bullying and harassment) and basic decency; the fastest way to get reported. |
 | No medical, legal, investment, gambling, crypto or loan content | Meta regulated-goods and fraud policies; "money tips" accounts get flagged. |
 | Own words only, credit the source in the reply | Copyright, and Threads ranks original commentary above reposted headlines. |
