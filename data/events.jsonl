@@ -23,3 +23,5 @@
 {"id": "20261127T041435-A0", "permalink": "https://www.threads.com/@goycoon/post/DgPpncqkbgd"}
 {"id": "20261127T041505-B0", "state": "published", "published_at": "2026-11-27T12:11:31+00:00", "media_id": "18052527431827781", "image_url": ""}
 {"id": "20261127T041505-B0", "permalink": "https://www.threads.com/@comtumb/post/DgPpocREeUi"}
+{"id": "20261127T121400-A0", "publish_errors": 1, "last_error": "Threads API error: API access blocked.", "state": "approved", "review": {"verdict": "pass", "score": 7, "reason": "natural voice, on-niche, not a repeat, card/poll within limits"}}
+{"id": "20261127T121518-B0", "publish_errors": 1, "last_error": "Threads API error: API access blocked.", "state": "approved", "review": {"verdict": "pass", "score": 7, "reason": "facts match the opened source, players introduced, clear question; takes on-niche"}}
