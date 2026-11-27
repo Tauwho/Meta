@@ -33,7 +33,11 @@ jobs:
         run: |
           for i in 1 2 3; do gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref main && exit 0; sleep 15; done
           exit 1
+      # ref: main, not the dispatch-time commit: this run starts ~an hour after it was queued, and the
+      # previous run's publish events were pushed in between
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
