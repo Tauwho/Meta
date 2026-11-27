@@ -235,3 +235,22 @@ def test_events_overlay_wins_over_posts_file(repo):
     posts.record(pid, permalink="https://t/x")
     p = posts.find(posts.load(), pid)
     assert (p["state"], p["media_id"], p["permalink"]) == ("published", "m9", "https://t/x")
+
+
+def test_parse_reads_atom_entries_with_href_links():
+    atom = b"""<feed xmlns="http://www.w3.org/2005/Atom"><title>The Verge</title>
+<entry><title>OpenAI ships a thing</title><link rel="alternate" href="https://theverge.com/x"/></entry></feed>"""
+    assert trends.parse(atom, "verge", 5) == [{"source": "verge", "title": "OpenAI ships a thing",
+                                                "link": "https://theverge.com/x"}]
+
+
+def test_shared_feeds_false_drops_vn_trends(repo, monkeypatch):
+    monkeypatch.undo()  # the repo fixture stubs collect(); this test needs the real one
+    monkeypatch.setenv("META_ROOT", str(repo))
+    config.settings.cache_clear()
+    acc = config.settings()["accounts"]["B"]
+    acc.update(shared_feeds=False, feeds=["https://example.com/feed"], search_keywords=[])
+    fetched = []
+    monkeypatch.setattr(trends, "_fetch", lambda url: fetched.append(url) or GT)
+    trends.collect("B")
+    assert fetched == ["https://example.com/feed"]

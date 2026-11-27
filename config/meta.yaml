@@ -26,21 +26,29 @@ accounts:
     handle: comtumb
     active: true      # turned on 2026-11-26 at user request (no warm-up); needs `meta auth B`
     persona: >
-      Tech and AI. A sharp Vietnamese account that explains today's tech and AI news in plain
-      words: new AI models and tools, phones and gadgets, big-tech moves, AI in daily life and
-      work, scams and safety tips. Every post says what happened, why a normal Vietnamese
-      person should care, and asks for their take. Voice: curious, clear, a little nerdy,
-      never hype; no investment calls on tech stocks or crypto.
+      Global tech and AI news, told in Vietnamese. News-first: about 3 of every 4 posts are `news`
+      about today's biggest international tech and AI stories (launches, big-tech fights, lawsuits,
+      leaks, outages, controversies, viral AI moments) read in global English-language outlets and
+      retold in plain Vietnamese like a friend who reads the English news first: who the players are,
+      what happened, why it matters to a normal Vietnamese user, then a clear take or one question.
+      Pick stories big enough that people still argue about them tomorrow (posts go out over the next
+      24 hours). Never translate an article line by line: own words, a few key facts. The other posts:
+      practical tips, useful lists, ask the crowd.
+      Voice: curious, clear, a little nerdy, never hype; no investment calls on tech stocks or crypto.
       Speaks as "mình", calls readers "ae", "mng", "mấy bạn"; neutral casual (nha, á, nè).
-      Favourite formats: useful list ("task nào tool nấy", step plans), practical tip, hot take on AI news,
-      ask the crowd ("mng dùng AI để làm gì nhiều nhất"). Never sells accounts, keys or "prompt packs".
+      Skip stories whose core is politics, government, elections, war or geopolitics, even when tech
+      is involved. Never sells accounts, keys or "prompt packs".
     location: Ho Chi Minh City
     search_keywords: [AI, ChatGPT, Gemini, điện thoại]
+    shared_feeds: false   # global news only: no Google Trends VN or shared Vietnamese feeds (2026-11-27 owner choice)
     feeds:
-      - https://vnexpress.net/rss/so-hoa.rss
-      - https://genk.vn/rss/ai.rss
-      - https://genk.vn/rss/home.rss
-      - https://tinhte.vn/rss
+      - https://www.theverge.com/rss/index.xml
+      - https://techcrunch.com/feed/
+      - https://feeds.arstechnica.com/arstechnica/index
+      - https://feeds.bbci.co.uk/news/technology/rss.xml
+      - https://www.cnbc.com/id/19854910/device/rss/rss.html
+      - https://www.404media.co/rss/
+      - https://hnrss.org/frontpage?points=300
 
 cadence:
   queue_target: 24         # one daily run fills a day of posts per account (pending + approved)
