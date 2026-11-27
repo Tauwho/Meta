@@ -6,7 +6,7 @@ name: publish
 on:
   schedule:
     # GitHub drops or delays scheduled runs under load (all of 05:13-07:13Z on 27 Nov were skipped),
-    # so :43 is a retry slot; the guard below keeps the cadence at about one post per account per hour.
+    # so :43 is a retry slot; `--min-gap 50` below keeps the cadence at about one post per account per hour.
     - cron: "13,43 * * * *"
   workflow_dispatch: {}
 
@@ -38,19 +38,9 @@ jobs:
           umask 077
           printf 'THREADS_A_TOKEN=%s\nTHREADS_A_USER_ID=%s\nTHREADS_B_TOKEN=%s\nTHREADS_B_USER_ID=%s\n' \
             "$A_TOKEN" "$A_USER" "$B_TOKEN" "$B_USER" > .env
-      - name: Skip if this hour already published
-        id: guard
-        if: github.event_name == 'schedule'
-        run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, datetime as d
-          now = d.datetime.now(d.timezone.utc)
-          last = max((d.datetime.fromisoformat(e["published_at"]) for e in map(json.loads, open("data/events.jsonl"))
-                      if e.get("published_at")), default=None)
-          print("skip=" + str(bool(last and now - last < d.timedelta(minutes=50))).lower())
-          PY
-      - run: meta publish
-        if: steps.guard.outputs.skip != 'true'
+      # 50-min gap per account: with runs at :13 and :43 each account posts about hourly, and one
+      # dropped or late run costs at most 30 minutes
+      - run: meta publish --min-gap 50
       - name: Commit publish events
         if: always()
         run: |

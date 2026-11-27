@@ -215,7 +215,8 @@ def expire_stale(posts: list[dict]) -> int:
     return n
 
 
-def due(posts: list[dict], account: str, at: datetime, ignore_gap: bool = False) -> dict | None:
+def due(posts: list[dict], account: str, at: datetime, ignore_gap: bool = False,
+        gap_minutes: int | None = None) -> dict | None:
     """Oldest approved post for the account, if the posting window and gap allow one now."""
     cad = config.settings()["cadence"]
     start, end = cad["post_hours_vn"]
@@ -224,7 +225,7 @@ def due(posts: list[dict], account: str, at: datetime, ignore_gap: bool = False)
     published = [p for p in posts if p["account"] == account and p["state"] == "published"]
     if published and not ignore_gap:
         last = max(_ts(p, "published_at") for p in published)
-        if at - last < timedelta(minutes=cad["min_gap_minutes"]):
+        if at - last < timedelta(minutes=gap_minutes or cad["min_gap_minutes"]):
             return None
     ready = [p for p in posts if p["account"] == account and p["state"] == "approved"]
     return min(ready, key=lambda p: p["created"]) if ready else None

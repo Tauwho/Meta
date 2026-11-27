@@ -4,12 +4,12 @@ No API key. The scheduled session *is* the model; the `meta` CLI decides what to
 
 ## Procedure
 
-Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` publishes one due post per account every hour (`meta publish`, no model) and commits only `data/events.jsonl`.
+Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` runs at :13 and :43 and publishes about one due post per account per hour (`meta publish --min-gap 50`, no model) and commits only `data/events.jsonl`.
 
 Work in `C:\Data\Singapore\SMU\Meta`. CLI: `.venv\Scripts\meta.exe` (if missing: `python -m venv .venv` then `.venv\Scripts\python -m pip install -e .`).
 
 1. `git pull --rebase --autostash`, then `meta track` (if it fails with a token error, see Self-healing and continue).
-2. Check the cloud publisher: `gh run list --workflow publish -L 6`. If recent runs failed, `gh run view <id> --log-failed`, and look in `data/events.jsonl` for `last_error` entries; fix with **Self-healing** below.
+2. Check the cloud publisher: `gh run list --workflow publish -L 6`. If recent runs failed, `gh run view <id> --log-failed`, and look in `data/events.jsonl` for `last_error` entries; fix with **Self-healing** below. If no run started in the last 2 hours (GitHub sometimes stops firing the schedule), start one with `gh workflow run publish.yml`; the gap check makes an extra run safe.
 3. Loop until `meta agent next` says done, at most **30 jobs** (about 4 write + 4 review jobs per account fills 24 posts each):
    1. `meta agent next` -> JSON ticket. If `"done": true`, stop the loop.
    2. Read `system_file` and adopt it as your instructions for this job. Read `prompt_file`: that is the task.
@@ -17,7 +17,7 @@ Work in `C:\Data\Singapore\SMU\Meta`. CLI: `.venv\Scripts\meta.exe` (if missing:
    4. Write **only** the JSON object to `output_file` with the Write tool. No preamble, no code fence.
    5. `meta agent submit <job_id>`. If it fails, read the error, fix `output_file`, submit again (max 2 retries). Still failing: `meta agent abandon <job_id>`, note it, continue.
 4. `meta cards` (renders and hosts every queued card now, so the cloud publisher never needs fonts).
-5. Mondays only: `meta refresh A`, `meta refresh B`, then `meta push-secrets` (keeps the 60-day tokens alive in the cloud).
+5. `meta keepalive` (every run: refreshes any token last refreshed 6+ days ago, then pushes the secrets, so the 60-day tokens never expire in the cloud even if the laptop slept through several days).
 6. `meta status`.
 7. Commit and push: `git add data/posts.jsonl data/events.jsonl`, `git commit -m "agent run <date>: <what happened>"`, `git pull --rebase --autostash`, `git push`. No AI co-author trailer. Push before you finish: the cloud publisher only sees what is pushed.
 8. Final message: jobs done, posts queued per account, cloud publisher health (last runs ok/failed, posts published since yesterday), anything abandoned or failing, and every self-healing fix you made (what failed, what you did, whether it worked).

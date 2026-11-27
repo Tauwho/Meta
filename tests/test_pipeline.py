@@ -77,6 +77,33 @@ def test_due_respects_window_gap_and_order(repo):
                "published_at": posts.iso(at - timedelta(minutes=30))})
     assert posts.due(ps, "A", at) is None
     assert posts.due(ps, "A", at, ignore_gap=True)["id"] == "1"
+    assert posts.due(ps, "A", at, gap_minutes=20)["id"] == "1"  # cloud cron overrides the gap
+
+
+def test_transient_publish_error_never_rejects_the_post(repo, monkeypatch, capsys):
+    import argparse
+    from meta_engine import cli, threads
+    at = datetime(2026, 11, 27, 5, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr(config, "now", lambda: at)
+    monkeypatch.setattr(config, "active_accounts", lambda: {"A": {}})
+    (a,) = posts.add_drafts("A", {"posts": [draft(kind="take", reply="")]})
+    ps = posts.load()
+    posts.find(ps, a)["state"] = "approved"
+    posts.save(ps)
+    monkeypatch.setattr(cli, "_already_live", lambda acc, text: None)
+    monkeypatch.setattr(cli, "_location", lambda acc: "")
+    err = {"msg": "Threads API error: Please retry your request later."}
+    monkeypatch.setattr(threads, "publish_text", lambda *x, **k: (_ for _ in ()).throw(SystemExit(err["msg"])))
+    args = argparse.Namespace(now=False, dry_run=False, min_gap=None)
+    for _ in range(3):
+        cli.cmd_publish(args)  # transient: exits 0, no strike
+    assert posts.find(posts.load(), a)["state"] == "approved"
+    err["msg"] = "Threads API error: Invalid parameter"
+    with pytest.raises(SystemExit):
+        cli.cmd_publish(args)
+    with pytest.raises(SystemExit):
+        cli.cmd_publish(args)
+    assert posts.find(posts.load(), a)["state"] == "rejected"
 
 
 def test_agent_round_trip_write_then_review(repo):

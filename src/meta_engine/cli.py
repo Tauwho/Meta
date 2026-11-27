@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import timedelta
+from datetime import date, timedelta
 
 from dotenv import load_dotenv
 
@@ -94,8 +94,9 @@ def cmd_publish(a):
     all_posts = posts.load()
     posts.expire_stale(all_posts)
     at = config.now()
+    failed = []
     for account in config.active_accounts():
-        p = posts.due(all_posts, account, at, ignore_gap=a.now)
+        p = posts.due(all_posts, account, at, ignore_gap=a.now, gap_minutes=a.min_gap)
         if not p:
             print(f"{account}: nothing due (window, gap or empty queue)")
             continue
@@ -118,10 +119,13 @@ def cmd_publish(a):
                                                      location_id=_location(account))
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
-            # a post the API keeps refusing must not block the account's queue every hour
-            p["publish_errors"] = p.get("publish_errors", 0) + 1
+            # a post the API keeps refusing must not block the account's queue every hour;
+            # Meta/network hiccups say nothing about the post: no strike, no failed run, the next run retries
+            if not threads.is_transient(e):
+                failed.append(account)
+                p["publish_errors"] = p.get("publish_errors", 0) + 1
             p["last_error"] = str(e)
-            if p["publish_errors"] >= 2:
+            if p.get("publish_errors", 0) >= 2:
                 p["state"] = "rejected"
                 p["review"] = {**p.get("review", {}), "reason": f"publish failed twice: {e}"}
             posts.record(p["id"], **{k: p[k] for k in ("publish_errors", "last_error", "state", "review") if k in p})
@@ -145,6 +149,8 @@ def cmd_publish(a):
             p["permalink"] = ""
         print(f"{account}: published {p['id']} {p['permalink']}" + (" (was already live)" if live else ""))
     posts.save(all_posts)
+    if failed:  # non-zero exit makes the cloud run fail, so GitHub emails the owner
+        sys.exit(f"publish failed for: {', '.join(failed)}")
 
 
 def cmd_delete(a):
@@ -192,6 +198,21 @@ def cmd_push_secrets(a):
         subprocess.run(["gh", "secret", "set", n], input=env[n], text=True, check=True, cwd=config.root(),
                        stdout=subprocess.DEVNULL)
     print(f"pushed {len(names)} secrets to GitHub")
+
+
+def cmd_keepalive(a):
+    """Refresh each token at most once every 6 days and copy them to GitHub, so the cloud never expires."""
+    from dotenv import dotenv_values
+    env, today = dotenv_values(config.root() / ".env"), config.now().date()
+    stale = [s for s in config.active_accounts()
+             if not env.get(f"THREADS_{s}_REFRESHED")
+             or (today - date.fromisoformat(env[f"THREADS_{s}_REFRESHED"])).days >= 6]
+    for s in stale:
+        threads.refresh(s)
+    if stale:
+        cmd_push_secrets(a)
+    else:
+        print("tokens refreshed within 6 days; nothing to do")
 
 
 def cmd_track(a):
@@ -243,6 +264,7 @@ def main(argv=None):
     pb = sub.add_parser("publish", help="publish at most one due post per active account")
     pb.add_argument("--dry-run", action="store_true")
     pb.add_argument("--now", action="store_true", help="skip the min-gap check (window still applies)")
+    pb.add_argument("--min-gap", type=int, help="override cadence.min_gap_minutes (cloud cron uses 50)")
     pb.set_defaults(fn=cmd_publish)
     dl = sub.add_parser("delete", help="permanently delete published posts (and their reply) from Threads")
     dl.add_argument("ids", nargs="+")
@@ -253,6 +275,7 @@ def main(argv=None):
     cl.set_defaults(fn=cmd_clear)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
     sub.add_parser("push-secrets", help="copy Threads tokens from .env to GitHub Actions secrets").set_defaults(fn=cmd_push_secrets)
+    sub.add_parser("keepalive", help="refresh tokens older than 6 days, then push-secrets").set_defaults(fn=cmd_keepalive)
     sub.add_parser("cards", help="render and host cards for every queued post (before the cloud publisher)").set_defaults(fn=cmd_cards)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)
     tr = sub.add_parser("trends", help="print today's trend signals for an account")

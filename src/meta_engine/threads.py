@@ -30,15 +30,35 @@ def _env():
     return dotenv_values(_env_path())
 
 
+TRANSIENT = ("timed out", "please retry", "temporarily unavailable", "network error", "http 5")
+
+
+def is_transient(err) -> bool:
+    """True for Meta/network hiccups that say nothing about the post itself."""
+    return any(t in str(err).lower() for t in TRANSIENT)
+
+
 def _call(url, data=None):
     body = urllib.parse.urlencode(data).encode() if data else None
-    try:
-        with urllib.request.urlopen(urllib.request.Request(url, data=body), timeout=30) as r:
-            return json.load(r)
-    except urllib.error.HTTPError as e:
-        # Meta error bodies never echo the secret back; show message only
-        msg = json.loads(e.read() or b"{}").get("error", {}).get("message", str(e))
-        sys.exit(f"Threads API error: {msg}")
+    # reads (no body) retry network/5xx errors; writes never retry here, a lost response may have posted
+    for attempt in range(1 if body else 3):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, data=body), timeout=30) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            # Meta error bodies never echo the secret back; show message only
+            try:
+                msg = json.loads(e.read() or b"{}").get("error", {}).get("message", str(e))
+            except ValueError:
+                msg = str(e)
+            err = f"Threads API error: {msg}" + (f" (HTTP {e.code})" if e.code >= 500 else "")
+            if e.code < 500:
+                sys.exit(err)
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            err = f"Threads API network error: {getattr(e, 'reason', e)}"
+        if attempt < (0 if body else 2):
+            time.sleep(5 * (attempt + 1))
+    sys.exit(err)
 
 
 def code_from_redirect(url):
@@ -88,6 +108,7 @@ def refresh(slot):
     r = _call(f"{GRAPH}/refresh_access_token?" + urllib.parse.urlencode(
         {"grant_type": "th_refresh_token", "access_token": _token(slot)}))
     set_key(_env_path(), f"THREADS_{slot}_TOKEN", r["access_token"])
+    set_key(_env_path(), f"THREADS_{slot}_REFRESHED", time.strftime("%Y-%m-%d"))
     print(f"Refreshed THREADS_{slot}_TOKEN (valid ~{r.get('expires_in', 0) // 86400} days).")
 
 
