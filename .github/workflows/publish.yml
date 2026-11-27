@@ -5,9 +5,9 @@ name: publish
 
 on:
   schedule:
-    # GitHub drops or delays scheduled runs under load (all of 05:13-07:13Z on 27 Nov were skipped),
-    # so :43 is a retry slot; `--min-gap 50` below keeps the cadence at about one post per account per hour.
-    - cron: "13,43 * * * *"
+    # GitHub drops or delays scheduled runs under load (none fired at all 04:46-09:55Z on 27 Nov),
+    # so the second slot is a retry; `--min-gap 50` below keeps the cadence at about one post per account per hour.
+    - cron: "7,37 * * * *"
   workflow_dispatch: {}
 
 permissions:

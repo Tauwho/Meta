@@ -4,7 +4,7 @@ No API key. The scheduled session *is* the model; the `meta` CLI decides what to
 
 ## Procedure
 
-Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` runs at :13 and :43 and publishes about one due post per account per hour (`meta publish --min-gap 50`, no model) and commits only `data/events.jsonl`.
+Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` runs at :07 and :37 and publishes about one due post per account per hour (`meta publish --min-gap 50`, no model) and commits only `data/events.jsonl`.
 
 Work in `C:\Data\Singapore\SMU\Meta`. CLI: `.venv\Scripts\meta.exe` (if missing: `python -m venv .venv` then `.venv\Scripts\python -m pip install -e .`).
 
