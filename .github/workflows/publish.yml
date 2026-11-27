@@ -1,27 +1,38 @@
 # Hourly Threads publisher: posts the next approved post per account from the queue the daily
 # Claude run (docs/AGENT_RUN.md) writes. No model runs here; it is `meta publish` only.
 # Tokens come from repo secrets (set them with `meta push-secrets` from the local machine).
+#
+# Self-chaining: GitHub's cron never fired for this repo (zero scheduled runs 04:46-10:18Z on 27 Nov),
+# so each run first queues the next run, then publishes, then waits ~55 minutes. The queued run starts
+# when this one ends (concurrency group), so the chain keeps going even if a publish step fails.
+# The repo is public, so these long runs cost no Actions minutes. Stop the chain:
+# `gh workflow disable publish.yml`; restart it: `gh workflow enable publish.yml` + `gh workflow run publish.yml`.
 name: publish
 
 on:
   schedule:
-    # GitHub drops or delays scheduled runs under load (none fired at all 04:46-09:55Z on 27 Nov),
-    # so the second slot is a retry; `--min-gap 50` below keeps the cadence at about one post per account per hour.
-    - cron: "7,37 * * * *"
+    - cron: "7 */3 * * *"   # backup restarter only, in case the chain ever breaks and cron does fire
   workflow_dispatch: {}
 
 permissions:
   contents: write
+  actions: write            # GITHUB_TOKEN may start workflow_dispatch runs (the one event it can trigger)
 
 concurrency:
   group: publish
-  cancel-in-progress: false
+  cancel-in-progress: false  # one run at a time, one queued; a newer queued run replaces an older one
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 75
     steps:
+      - name: Queue the next run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in 1 2 3; do gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref main && exit 0; sleep 15; done
+          exit 1
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
@@ -38,8 +49,7 @@ jobs:
           umask 077
           printf 'THREADS_A_TOKEN=%s\nTHREADS_A_USER_ID=%s\nTHREADS_B_TOKEN=%s\nTHREADS_B_USER_ID=%s\n' \
             "$A_TOKEN" "$A_USER" "$B_TOKEN" "$B_USER" > .env
-      # 50-min gap per account: with runs at :13 and :43 each account posts about hourly, and one
-      # dropped or late run costs at most 30 minutes
+      # 50-min gap per account: an early or extra run (manual, cron) never posts twice in an hour
       - run: meta publish --min-gap 50
       - name: Commit publish events
         if: always()
@@ -53,3 +63,6 @@ jobs:
           git commit -m "publish $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep 10; done
           exit 1
+      - name: Wait for the next hour
+        if: always()
+        run: sleep 3300

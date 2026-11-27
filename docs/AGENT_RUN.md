@@ -4,12 +4,12 @@ No API key. The scheduled session *is* the model; the `meta` CLI decides what to
 
 ## Procedure
 
-Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` runs at :07 and :37 and publishes about one due post per account per hour (`meta publish --min-gap 50`, no model) and commits only `data/events.jsonl`.
+Runs **once a day at 06:00** (local time). It fills a day of posts per account; the GitHub Actions workflow `.github/workflows/publish.yml` runs as a self-chaining loop (each run queues the next, publishes, waits ~55 min) and publishes about one due post per account per hour (`meta publish --min-gap 50`, no model); the repo is public so this costs no Actions minutes and commits only `data/events.jsonl`.
 
 Work in `C:\Data\Singapore\SMU\Meta`. CLI: `.venv\Scripts\meta.exe` (if missing: `python -m venv .venv` then `.venv\Scripts\python -m pip install -e .`).
 
 1. `git pull --rebase --autostash`, then `meta track` (if it fails with a token error, see Self-healing and continue).
-2. Check the cloud publisher: `gh run list --workflow publish -L 6`. If recent runs failed, `gh run view <id> --log-failed`, and look in `data/events.jsonl` for `last_error` entries; fix with **Self-healing** below. If no run started in the last 2 hours (GitHub sometimes stops firing the schedule), start one with `gh workflow run publish.yml`; the gap check makes an extra run safe.
+2. Check the cloud publisher: `gh run list --workflow publish -L 6`. If recent runs failed, `gh run view <id> --log-failed`, and look in `data/events.jsonl` for `last_error` entries; fix with **Self-healing** below. If no run is in progress or queued and none started in the last 2 hours, the chain broke: restart it with `gh workflow run publish.yml` (the gap check makes an extra run safe).
 3. Loop until `meta agent next` says done, at most **30 jobs** (about 4 write + 4 review jobs per account fills 24 posts each):
    1. `meta agent next` -> JSON ticket. If `"done": true`, stop the loop.
    2. Read `system_file` and adopt it as your instructions for this job. Read `prompt_file`: that is the task.
