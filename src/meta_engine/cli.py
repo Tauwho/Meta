@@ -120,10 +120,12 @@ def cmd_publish(a):
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
             # a post the API keeps refusing must not block the account's queue every hour;
-            # Meta/network hiccups say nothing about the post: no strike, no failed run, the next run retries
+            # Meta/network hiccups say nothing about the post: no strike, no failed run, the next run retries.
+            # An app/account block or bad token fails the run (so GitHub emails) but never strikes the post.
             if not threads.is_transient(e):
                 failed.append(account)
-                p["publish_errors"] = p.get("publish_errors", 0) + 1
+                if not threads.is_account_level(e):
+                    p["publish_errors"] = p.get("publish_errors", 0) + 1
             p["last_error"] = str(e)
             if p.get("publish_errors", 0) >= 2:
                 p["state"] = "rejected"

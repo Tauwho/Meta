@@ -38,6 +38,14 @@ def is_transient(err) -> bool:
     return any(t in str(err).lower() for t in TRANSIENT)
 
 
+ACCOUNT_LEVEL = ("api access blocked", "access token", "session has expired", "no threads_")
+
+
+def is_account_level(err) -> bool:
+    """True when the app or account is blocked or unauthorised: nothing to do with the post itself."""
+    return any(t in str(err).lower() for t in ACCOUNT_LEVEL)
+
+
 def _call(url, data=None):
     body = urllib.parse.urlencode(data).encode() if data else None
     # reads (no body) retry network/5xx errors; writes never retry here, a lost response may have posted

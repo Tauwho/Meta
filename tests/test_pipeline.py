@@ -98,6 +98,11 @@ def test_transient_publish_error_never_rejects_the_post(repo, monkeypatch, capsy
     for _ in range(3):
         cli.cmd_publish(args)  # transient: exits 0, no strike
     assert posts.find(posts.load(), a)["state"] == "approved"
+    err["msg"] = "Threads API error: API access blocked."
+    for _ in range(3):
+        with pytest.raises(SystemExit):
+            cli.cmd_publish(args)  # account-level: run fails, post keeps its place
+    assert posts.find(posts.load(), a)["state"] == "approved"
     err["msg"] = "Threads API error: Invalid parameter"
     with pytest.raises(SystemExit):
         cli.cmd_publish(args)
