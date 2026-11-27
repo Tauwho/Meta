@@ -20,6 +20,7 @@ $performance
 
 ## Steps
 
+0. These posts go out over the next 24 hours, one per hour, so each must still land tomorrow morning: prefer timeless takes and feelings over breaking news; a `news` post must be about something people will still talk about tomorrow.
 1. Pick $n topics that fit the persona's niche and that people feel something about right now: a niche story from the signals, a general trend with a genuine niche angle (no forced links), or a timeless relatable situation the signals remind you of. Safe under the hard rules. Skip anything political or tragic.
 2. Mix kinds and formats: at least 3 of 4 posts are `take`; use different formats from your instructions (caption + card, quote line, ask the crowd, relatable moment, hot take, useful list) so no two posts read the same.
 3. For every `news` post, open at least one reputable source with web search/fetch and confirm the facts you use; list the URLs in `sources`. `take` posts may leave `sources` empty.

@@ -196,7 +196,15 @@ def test_clear_drops_features_only_on_queued_posts(repo):
     ps = posts.load(); posts.find(ps, pid)["publish_errors"] = 1; posts.save(ps)
     cli.main(["clear", pid, "poll", "topic_tag"])
     p = posts.find(posts.load(), pid)
-    assert p["poll"] == [] and p["topic_tag"] == "" and "publish_errors" not in p
+    assert p["poll"] == [] and p["topic_tag"] == "" and not p.get("publish_errors")
     ps = posts.load(); posts.find(ps, pid)["state"] = "published"; posts.save(ps)
     with pytest.raises(SystemExit):
         cli.main(["clear", pid, "poll"])
+
+
+def test_events_overlay_wins_over_posts_file(repo):
+    (pid,) = posts.add_drafts("A", {"posts": [draft()]})
+    posts.record(pid, state="published", media_id="m9")
+    posts.record(pid, permalink="https://t/x")
+    p = posts.find(posts.load(), pid)
+    assert (p["state"], p["media_id"], p["permalink"]) == ("published", "m9", "https://t/x")

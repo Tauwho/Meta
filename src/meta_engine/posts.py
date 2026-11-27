@@ -23,11 +23,30 @@ def _path():
     return config.data_dir() / "posts.jsonl"
 
 
+def _events_path():
+    return config.data_dir() / "events.jsonl"
+
+
 def load() -> list[dict]:
+    """posts.jsonl with data/events.jsonl applied on top, in file order (later events win)."""
     p = _path()
-    if not p.exists():
-        return []
-    return [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
+    posts = [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()] if p.exists() else []
+    ev = _events_path()
+    if ev.exists():
+        by_id = {x["id"]: x for x in posts}
+        for line in ev.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                e = json.loads(line)
+                if e["id"] in by_id:
+                    by_id[e["id"]].update(e)
+    return posts
+
+
+def record(post_id: str, **fields) -> None:
+    """Append a publish-side state change to data/events.jsonl. The hourly cloud publisher commits only
+    this append-only file (git merge=union), so it never conflicts with the daily run's posts.jsonl."""
+    with _events_path().open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"id": post_id, **fields}, ensure_ascii=False) + "\n")
 
 
 def save(posts: list[dict]) -> None:

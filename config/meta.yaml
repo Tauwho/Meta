@@ -43,12 +43,12 @@ accounts:
       - https://tinhte.vn/rss
 
 cadence:
-  queue_target: 6          # keep this many posts ready (pending approval + approved) per account
-  write_batch: 4           # drafts per write job
-  min_gap_minutes: 50      # between two posts on the same account (hourly runs)
+  queue_target: 24         # one daily run fills a day of posts per account (pending + approved)
+  write_batch: 6           # drafts per write job
+  min_gap_minutes: 30      # between two posts on one account; the hourly cloud cron can start late
   post_hours_vn: [0, 24]   # 24/7 at user request; publish window in Vietnam time (UTC+7)
   max_age_hours: 36        # trend posts older than this are expired instead of published
-  max_jobs_per_run: 4
+  max_jobs_per_run: 30     # the daily run stops after this many agent jobs
 
 publish:
   require_approval: false   # true: you run `meta approve`; false: reviewed posts go out on their own

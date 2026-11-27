@@ -64,6 +64,32 @@ def _location(account):
         return ""
 
 
+def _card_url(account, p):
+    """Public URL of the post's text card, rendering and hosting it first if needed (local machine only)."""
+    if not p.get("image_url"):
+        handle = config.settings()["accounts"][account].get("handle", "")
+        png = card.render(p["card"], handle, media.repo() / account / f"{p['id']}.png", seed=p["id"])
+        p["image_url"] = media.host(png)
+    return p["image_url"]
+
+
+def cmd_cards(a):
+    """Render and host the card of every queued post now, so the cloud publisher never needs fonts or media/."""
+    all_posts = posts.load()
+    todo = [p for p in all_posts if p["state"] in ("approved", "pending") and p.get("card") and not p.get("image_url")]
+    for p in todo:
+        _card_url(p["account"], p)
+        posts.save(all_posts)
+    print(f"{len(todo)} card(s) hosted")
+
+
+def _already_live(account, text):
+    """Media id of a recent live post with exactly this text, or None (guards against lost publish state)."""
+    norm = " ".join(text.split())
+    return next((t["id"] for t in threads.recent_posts(account)
+                 if " ".join((t.get("text") or "").split()) == norm), None)
+
+
 def cmd_publish(a):
     all_posts = posts.load()
     posts.expire_stale(all_posts)
@@ -78,18 +104,18 @@ def cmd_publish(a):
                   + f"\n{p['text']}")
             continue
         try:  # one account failing (no token, API error) must not stop the others
-            image_url = None
-            if p.get("card"):
-                handle = config.settings()["accounts"][account].get("handle", "")
-                png = card.render(p["card"], handle, media.repo() / account / f"{p['id']}.png", seed=p["id"])
-                image_url = p["image_url"] = media.host(png)
-            # news without a card: show the article's preview so scrollers see who/what it is about
-            link = (p["sources"][0] if p.get("kind") == "news" and not image_url and not p.get("poll")
-                    and not p.get("quote_post_id") and p.get("sources") else None)
-            p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url, link=link,
-                                                 topic_tag=p.get("topic_tag", ""), poll=p.get("poll"),
-                                                 quote_post_id=p.get("quote_post_id", ""),
-                                                 location_id=_location(account))
+            live = _already_live(account, p["text"])
+            if live:  # published earlier but its record was lost: record it, never post twice
+                p["media_id"] = live
+            else:
+                image_url = _card_url(account, p) if p.get("card") else None
+                # news without a card: show the article's preview so scrollers see who/what it is about
+                link = (p["sources"][0] if p.get("kind") == "news" and not image_url and not p.get("poll")
+                        and not p.get("quote_post_id") and p.get("sources") else None)
+                p["media_id"] = threads.publish_text(account, p["text"], image_url=image_url, link=link,
+                                                     topic_tag=p.get("topic_tag", ""), poll=p.get("poll"),
+                                                     quote_post_id=p.get("quote_post_id", ""),
+                                                     location_id=_location(account))
         except SystemExit as e:
             print(f"{account}: publish failed: {e}", file=sys.stderr)
             # a post the API keeps refusing must not block the account's queue every hour
@@ -98,20 +124,26 @@ def cmd_publish(a):
             if p["publish_errors"] >= 2:
                 p["state"] = "rejected"
                 p["review"] = {**p.get("review", {}), "reason": f"publish failed twice: {e}"}
+            posts.record(p["id"], **{k: p[k] for k in ("publish_errors", "last_error", "state", "review") if k in p})
             posts.save(all_posts)
             continue
         p["state"], p["published_at"] = "published", posts.iso(at)
-        posts.save(all_posts)  # saved before the reply so a reply failure never re-posts the main text
-        if p["reply"]:
+        # recorded before the reply so a reply failure never re-posts the main text
+        posts.record(p["id"], state="published", published_at=p["published_at"], media_id=p["media_id"],
+                     image_url=p.get("image_url", ""))
+        posts.save(all_posts)
+        if p["reply"] and not live:
             try:
                 p["reply_id"] = threads.publish_text(account, p["reply"], reply_to=p["media_id"])
+                posts.record(p["id"], reply_id=p["reply_id"])
             except SystemExit as e:
                 print(f"{account}: reply failed: {e}", file=sys.stderr)
         try:
             p["permalink"] = threads.permalink(account, p["media_id"])
+            posts.record(p["id"], permalink=p["permalink"])
         except SystemExit:
             p["permalink"] = ""
-        print(f"{account}: published {p['id']} {p['permalink']}")
+        print(f"{account}: published {p['id']} {p['permalink']}" + (" (was already live)" if live else ""))
     posts.save(all_posts)
 
 
@@ -143,8 +175,23 @@ def cmd_clear(a):
         p[f] = [] if f == "poll" else ""
     p.pop("publish_errors", None)
     p.pop("last_error", None)
+    posts.record(a.id, **{f: p[f] for f in a.fields}, publish_errors=0, last_error="")
     posts.save(all_posts)
     print(f"{a.id}: cleared {', '.join(a.fields)}")
+
+
+def cmd_push_secrets(a):
+    """Copy the Threads tokens from .env into this repo's GitHub Actions secrets (via stdin, never argv)."""
+    from dotenv import dotenv_values
+    import subprocess
+    env = dotenv_values(config.root() / ".env")
+    names = [f"THREADS_{s}_{k}" for s in ("A", "B") for k in ("TOKEN", "USER_ID")]
+    for n in names:
+        if not env.get(n):
+            sys.exit(f"{n} missing in .env")
+        subprocess.run(["gh", "secret", "set", n], input=env[n], text=True, check=True, cwd=config.root(),
+                       stdout=subprocess.DEVNULL)
+    print(f"pushed {len(names)} secrets to GitHub")
 
 
 def cmd_track(a):
@@ -205,6 +252,8 @@ def main(argv=None):
     cl.add_argument("fields", nargs="+", choices=CLEARABLE)
     cl.set_defaults(fn=cmd_clear)
     sub.add_parser("track", help="pull insights for recent posts").set_defaults(fn=cmd_track)
+    sub.add_parser("push-secrets", help="copy Threads tokens from .env to GitHub Actions secrets").set_defaults(fn=cmd_push_secrets)
+    sub.add_parser("cards", help="render and host cards for every queued post (before the cloud publisher)").set_defaults(fn=cmd_cards)
     sub.add_parser("status", help="post counts by state").set_defaults(fn=cmd_status)
     tr = sub.add_parser("trends", help="print today's trend signals for an account")
     tr.add_argument("slot", type=str.upper, choices=["A", "B"], nargs="?", default="A")
