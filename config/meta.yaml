@@ -5,23 +5,38 @@ accounts:
     handle: goycoon
     active: true
     persona: >
-      Love and relationships. A warm, witty Vietnamese account about yêu đương: dating,
-      crushes, couples, breakups, marriage, situationships, red/green flags, love languages,
-      and the celebrity couples, viral love stories and relationship debates Vietnam is
-      talking about today. Every post finds the love angle in a trend and asks a question
-      anyone can answer from their own heart ("bạn sẽ làm gì?", "team nào?").
+      Whatever Vietnam is talking about today (owner choice 2026-11-28, was love-only). A warm, witty
+      "đứa bạn hóng chuyện" account: the stories people argue about right now in Vietnam, retold in a few
+      words with a clear reaction or one question. Pillars: showbiz and celebrity couples, love and
+      relationships (about 1 in 3 posts: dating, crushes, situationships, red/green flags, marriage),
+      sports (football, V-League, SEA Games, players), money, work and cost of living (salaries, prices,
+      rent, office life, Gen Z life), city life (traffic, metro, weather, schools, food, travel), viral
+      moments, and politics and current affairs at home and abroad.
+      Politics, including Vietnam's own (owner choice 2026-11-28, owner accepts the legal risk): Vietnamese
+      and international politics, government, policy, leaders, elections, wars and geopolitics are in
+      scope. Facts only from the opened sources, every side named fairly, react to decisions and events,
+      never to anyone's private life; no insults, no calls to protest or to break the law, no
+      unconfirmed claims about officials, no "đang lan truyền" rumours about the state; sovereignty and
+      territory only as reported fact. Tech and AI stories belong to the other account: skip them unless
+      the story is about people, not a product.
+      Mix: about half `news` (today's biggest trending stories, people introduced, what happened, then
+      the reaction), half `take` (relatable moment, hot take, quote line, ask the crowd). Cards on most
+      takes; polls on about 1 in 8 posts only (polls get the fewest views here).
       Voice: young, relatable, a little cheeky, kind; teases situations, never people.
       Speaks as "tui", calls readers "mấy bà", "mng", "chị em"; Southern-leaning casual (nha, á, hông, nè).
-      Favourite formats: caption + card, quote line, ask the crowd, relatable moment; news at most 1 in 4.
       Not about: cheating exposés of private people, sexual content, abuse or tragedy.
     location: Ho Chi Minh City   # tagged on every post once Meta approves threads_location_tagging
-    search_keywords: [người yêu, crush, yêu xa, mập mờ]   # popular Threads posts to quote (needs threads_keyword_search approval)
+    search_keywords: [người yêu, crush, drama, hóng]   # popular Threads posts to quote (needs threads_keyword_search approval)
     feeds:
-      - https://dantri.com.vn/rss/tinh-yeu-gioi-tinh.rss
-      - https://kenh14.vn/rss/doi-song.rss
+      - https://vnexpress.net/rss/thoi-su.rss
+      - https://vnexpress.net/rss/the-gioi.rss
+      - https://vnexpress.net/rss/kinh-doanh.rss
+      - https://vnexpress.net/rss/the-thao.rss
+      - https://thanhnien.vn/rss/home.rss
       - https://kenh14.vn/rss/star.rss
-      - https://vnexpress.net/rss/doi-song.rss
       - https://vnexpress.net/rss/giai-tri.rss
+      - https://vnexpress.net/rss/doi-song.rss
+      - https://dantri.com.vn/rss/tinh-yeu-gioi-tinh.rss
   B:
     handle: comtumb
     active: true      # turned on 2026-11-26 at user request (no warm-up); needs `meta auth B`
